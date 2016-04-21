@@ -1,6 +1,13 @@
 <resources>
     <string name="app_name">MovieProject</string>
 
-    <!-- TODO: Remove or change this placeholder text -->
-    <string name="hello_blank_fragment">Hello blank fragment</string>
+
+    <!-- Action bar menu options -->
+    <string name="action_settings">Settings</string>
+    
+    <!-- TMDb urls to request -->
+    <string name="movies">http://api.themoviedb.org/3/movie/</string>
+    <string name="top_rated">top_rated</string>
+    <string name="popular">popular</string>
+
 </resources>
