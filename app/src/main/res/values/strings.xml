@@ -10,4 +10,38 @@
     <string name="top_rated">top_rated</string>
     <string name="popular">popular</string>
 
+    <!-- PREFERENCES -->
+    <string name="preference_sorting_key" translatable="false">sorting_key</string>
+    <string name="preference_sorting_default" translatable="false">popular</string>
+    <string name="preference_sorting_title" translatable="false">Sort by</string>
+    <string-array name="preference_sorting_entries">
+        <item>Popularity</item>
+        <item>Rating</item>
+    </string-array>
+    <string-array name="preference_sorting_entry_values">
+        <item>popular</item>
+        <item>top_rated</item>
+    </string-array>
+
+    <string name="preference_preview_width" translatable="false">preview_image_width</string>
+    <string name="preference_preview_width_title" translatable="false">Movie preview image width</string>
+    <string name="preference_preview_width_default" translatable="false">w185</string>
+    <string-array name="preference_preview_width_entries">
+        <item>Extra small</item>
+        <item>Small</item>
+        <item>Medium</item>
+        <item>Large</item>
+    </string-array>
+    <string-array name="preference_preview_width_entry_values">
+        <item>w92</item>
+        <item>w154</item>
+        <item>w342</item>
+        <item>w500</item>
+    </string-array>
+    <!-- Strings related to Settings -->
+
+    <!-- Example General settings -->
+    <string name="pref_header_general" translatable="false">General</string>
+    <string name="title_activity_movie_detail" translatable="false">Movie Detail</string>
+
 </resources>

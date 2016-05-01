@@ -1,9 +1,10 @@
 package com.lxdnz.nz.movieproject;
 
-import android.content.Context;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,7 +14,9 @@ import android.widget.AdapterView;
 import android.widget.GridView;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
+import org.json.JSONObject;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -21,8 +24,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 
 /**
@@ -30,21 +32,12 @@ import java.util.List;
  * Activities that contain this fragment must implement the
  * {@link MovieGridFragment.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link MovieGridFragment#newInstance} factory method to
- * create an instance of this fragment.
  */
 public class MovieGridFragment extends Fragment {
-    // TODO: Rename parameter arguments, choose names that match
-    // the fragment initialization parameters, e.g. ARG_ITEM_NUMBER
-    private static final String ARG_PARAM1 = "param1";
-    private static final String ARG_PARAM2 = "param2";
 
-
-
-    // TODO: Rename and change types of parameters
-    private String mParam1;
-    private String mParam2;
-    private Context mContext;
+    private static final String LOG_CAT = MovieGridFragment.class.getSimpleName();
+    private GridView gridView;
+    private String dimension;
     private ImageAdapter imageAdapter;
 
     private OnFragmentInteractionListener mListener;
@@ -53,49 +46,31 @@ public class MovieGridFragment extends Fragment {
         // Required empty public constructor
     }
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment MovieGridFragment.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static MovieGridFragment newInstance(String param1, String param2) {
-        MovieGridFragment fragment = new MovieGridFragment();
-        Bundle args = new Bundle();
-        args.putString(ARG_PARAM1, param1);
-        args.putString(ARG_PARAM2, param2);
-        fragment.setArguments(args);
-        return fragment;
-    }
+
+
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (getArguments() != null) {
-            mParam1 = getArguments().getString(ARG_PARAM1);
-            mParam2 = getArguments().getString(ARG_PARAM2);
+
         }
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-        View rootview = inflater.inflate(R.layout.fragment_movie_grid, container, false);
+        View rootView = inflater.inflate(R.layout.fragment_movie_grid, container, false);
 
-        Movie[] movies = new Movie[4];
-        movies[0] = new Movie();
-        movies[1] = new Movie();
-        movies[2] = new Movie();
-        movies[3] = new Movie();
 
-        GridView gridview = (GridView) rootview.findViewById(R.id.gridview);
-        imageAdapter = new ImageAdapter(getActivity(), R.layout.grid_view_thumbnail, movies);
-        gridview.setAdapter(imageAdapter);
+        gridView = (GridView) rootView.findViewById(R.id.gridview);
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
+        dimension = sharedPreferences.getString(getString(R.string.preference_preview_width),
+                getString(R.string.preference_preview_width_default));
 
-        gridview.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+
+
+        gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 Toast.makeText(getActivity(), "Clicked on " + position,
@@ -104,7 +79,7 @@ public class MovieGridFragment extends Fragment {
         });
 
         // Inflate the layout for this fragment
-        return rootview;
+        return rootView;
     }
 
     private void updateMovies() {
@@ -116,6 +91,10 @@ public class MovieGridFragment extends Fragment {
     public void onStart() {
         super.onStart();
         updateMovies();
+    }
+
+    private int convertDimension() {
+        return Integer.parseInt(dimension.substring(1));
     }
 
 
@@ -162,12 +141,20 @@ public class MovieGridFragment extends Fragment {
         void onFragmentInteraction(Uri uri);
     }
 
-    private class FetchMovieData extends AsyncTask<String, Void, List<Movie>> {
+    private class FetchMovieData extends AsyncTask<String, Void, Movie []> {
 
         private final String LOG_TAG = FetchMovieData.class.getSimpleName();
+        private static final String SCHEME = "http";
+        private static final String AUTHORITY = "api.themoviedb.org";
+        private static final String AUTHORITY_IMAGE = "image.tmdb.org";
+        private static final String VERSION = "3";
+        private static final String MOVIE = "movie";
+        private static final String API_KEY = "api_key";
+        private static final String T = "t";
+        private static final String P = "p";
 
         @Override
-        protected List<Movie> doInBackground(String... param) {
+        protected Movie [] doInBackground(String... param) {
 
 
             // if there's no string then there's nothing to look up. Verify size of params
@@ -175,33 +162,37 @@ public class MovieGridFragment extends Fragment {
                 return null;
             }
 
-            // These two need to be declared outside the try/catch
+            // These three need to be declared outside the try/catch
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-
-            // Will contain the raw JSON response as a string.
-            List<Movie> movieJsonStr = new ArrayList<>();
+            String resultFromFetch = null;
 
 
             try
 
             {
+                // get SharedPreferences
+                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
+                        getActivity().getApplicationContext());
+                String filter = sharedPreferences.getString(getString(R.string.preference_sorting_key),
+                        getString(R.string.preference_sorting_default));
+
                 // Construct the URL for the themoviedb.or query
                 // Possible parameters are avaiable at tmdb's API page, at
                 // http://www.themoviedb.org/documentation/API
 
-                final String TMDB_BASE_URL = "http://api.themoviedb.org/3/movie/";
-                final String QUERY_PARAM = param[0];
-                final String API_PARAM = "?api_key=";
-
-                Uri builtUri = Uri.parse(TMDB_BASE_URL + QUERY_PARAM +
-                        API_PARAM + BuildConfig.TMDB_API_KEY).buildUpon()
+                Uri uri = new Uri.Builder().scheme(SCHEME)
+                        .authority(AUTHORITY)
+                        .appendPath(VERSION)
+                        .appendPath(MOVIE)
+                        .appendPath(filter)
+                        .appendQueryParameter(API_KEY, BuildConfig.TMDB_API_KEY)
                         .build();
 
-                Log.v(LOG_TAG, "uri = "+builtUri.toString());
+                Log.v(LOG_TAG, "uri = "+uri.toString());
 
-                URL url = new URL(builtUri.toString());
+                URL url = new URL(uri.toString());
 
                 // Create the request to OpenWeatherMap, and open the connection
                 urlConnection = (HttpURLConnection) url.openConnection();
@@ -229,9 +220,9 @@ public class MovieGridFragment extends Fragment {
                     // Stream was empty.  No point in parsing.
                     return null;
                 }
-
+                resultFromFetch = buffer.toString();
                 try {
-                    movieJsonStr = new ArrayList<>(MovieParser.getMovieDataFromJson(buffer.toString()));
+                    return parseResponse(resultFromFetch);
                 } catch (JSONException e) {
                     Log.e(LOG_TAG, e.getMessage(), e);
                     e.printStackTrace();
@@ -240,7 +231,7 @@ public class MovieGridFragment extends Fragment {
 
             } catch (IOException e) {
                 Log.e(LOG_TAG, "Error ", e);
-                // If the code didn't successfully get the movie data, there's no point in attemping
+                // If the code didn't successfully get the movie data, there's no point in attempting
                 // to parse it.
                 return null;
             }
@@ -261,19 +252,77 @@ public class MovieGridFragment extends Fragment {
             }
 
 
-            return movieJsonStr;
+            return null;
+        }
+
+        private Movie[] parseResponse(String resultFromFetch) throws JSONException {
+            final String RESULTS = "results";
+            final String POSTER_PATH = "poster_path";
+            final String OVERVIEW = "overview";
+            final String ID = "id";
+            final String ORIGINAL_TITLE = "original_title";
+            final String ORIGINAL_LANGUAGE = "original_language";
+            final String TITLE = "title";
+            final String BACKDROP_PATH = "backdrop_path";
+            final String VOTE_AVERAGE = "vote_average";
+            final String VOTE_COUNT = "vote_count";
+
+            JSONObject fetchResult = new JSONObject(resultFromFetch);
+            JSONArray results = fetchResult.getJSONArray(RESULTS);
+
+            Movie[] arrayOfMovies = new Movie[results.length()];
+
+            for (int i = 0; i < arrayOfMovies.length; ++i) {
+                JSONObject movieToParse = results.getJSONObject(i);
+
+
+                String overview = movieToParse.getString(OVERVIEW);
+                int id = movieToParse.getInt(ID);
+                String originalTitle = movieToParse.getString(ORIGINAL_TITLE);
+                String originalLanguage = movieToParse.getString(ORIGINAL_LANGUAGE);
+                String title = movieToParse.getString(TITLE);
+
+                double voteAverage = movieToParse.getDouble(VOTE_AVERAGE);
+                int voteCount = movieToParse.getInt(VOTE_COUNT);
+
+                Uri uriBackdrop = new Uri.Builder().scheme(SCHEME)
+                        .authority(AUTHORITY_IMAGE)
+                        .appendPath(T)
+                        .appendPath(P)
+                        .appendPath(dimension)
+                        .appendEncodedPath(movieToParse.getString(BACKDROP_PATH))
+                        .build();
+                String backdropPath = uriBackdrop.toString();
+
+                Uri uriPoster = new Uri.Builder().scheme(SCHEME)
+                        .authority(AUTHORITY_IMAGE)
+                        .appendPath(T)
+                        .appendPath(P)
+                        .appendPath(dimension)
+                        .appendEncodedPath(movieToParse.getString(POSTER_PATH))
+                        .build();
+                String posterPath = uriPoster.toString();
+                arrayOfMovies[i] = new Movie(title,
+                        originalTitle,
+                        originalLanguage,
+                        overview,
+                        posterPath,
+                        backdropPath,
+                        id,
+                        voteCount,
+                        voteAverage);
+            }
+
+            return arrayOfMovies;
         }
 
         @Override
-        protected void onPostExecute(List<Movie> result) {
+        protected void onPostExecute(Movie [] result) {
             super.onPostExecute(result);
 
             if (result != null) {
-                if (imageAdapter != null ) {
-                  //  imageAdapter.clear();
-                    Log.v(LOG_TAG, "should clear imageAdapter");
-                }
-                imageAdapter.addAll(result);
+               imageAdapter = new ImageAdapter(getActivity(), Arrays.asList(result));
+                gridView.setAdapter(imageAdapter);
             }
         }
     }

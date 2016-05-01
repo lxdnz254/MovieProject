@@ -8,24 +8,36 @@ import android.os.Parcelable;
  */
 public class Movie implements Parcelable{
 
-    private String id = null;
-    private String title = null;
-    private String poster_path = null;
-    private String overview = null;
-    private String release_date = null;
-    private String rating = null;
 
-    public Movie(){
+    private int id;
+    private String backdrop_path;
+    private String original_language;
+    private String original_title;
+    private String overview;
+    private String poster_path;
+    private String title;
+    private double vote_average;
+    private int vote_count;
 
-    }
 
-    private Movie(Parcel in){
-        id = in.readString();
-        title = in.readString();
-        poster_path = in.readString();
-        overview = in.readString();
-        release_date = in.readString();
-        rating = in.readString();
+    public Movie(String title,
+                 String original_title,
+                 String original_language,
+                 String overview,
+                 String poster_path,
+                 String backdrop_path,
+                 int id,
+                 int vote_count,
+                 double vote_average) {
+        this.title = title;
+        this.original_language = original_language;
+        this.original_title = original_title;
+        this.poster_path = poster_path;
+        this.overview = overview;
+        this.backdrop_path = backdrop_path;
+        this.id =id;
+        this.vote_average = vote_average;
+        this.vote_count = vote_count;
     }
 
     public int describeContents() {
@@ -33,12 +45,15 @@ public class Movie implements Parcelable{
     }
 
     public void writeToParcel(Parcel out, int flags) {
-        out.writeString(id);
-        out.writeString(title);
-        out.writeString(poster_path);
+        out.writeInt(id);
+        out.writeInt(vote_count);
+        out.writeDouble(vote_average);
+        out.writeString(backdrop_path);
+        out.writeString(original_language);
+        out.writeString(original_title);
         out.writeString(overview);
-        out.writeString(release_date);
-        out.writeString(rating);
+        out.writeString(poster_path);
+        out.writeString(title);
     }
 
     public static final Parcelable.Creator<Movie> CREATOR
@@ -52,64 +67,58 @@ public class Movie implements Parcelable{
         }
     };
 
-    public String getId() {
-        return id;
+    public int getVote_count() {
+        return vote_count;
     }
 
-    public void setId(String id) {
-        this.id = id;
+    public double getVote_average() {
+        return vote_average;
     }
-
 
     public String getTitle() {
         return title;
     }
 
-    public void setTitle(String title) {
-        this.title = title;
+    public int getId() {
+        return id;
     }
 
-    public String getPoster_path() {
-        return poster_path;
+    public String getBackdrop_path() {
+        return backdrop_path;
     }
 
-    public void setPoster_path(String poster_path) {
-        this.poster_path = poster_path;
+    public String getOriginal_title() {
+        return original_title;
+    }
+
+    public String getOriginal_language() {
+        return original_language;
     }
 
     public String getOverview() {
         return overview;
     }
 
-    public void setOverview(String overview) {
-        this.overview = overview;
+    public String getPoster_path() {
+        return poster_path;
     }
 
-    public String getRelease_date() {
-        return release_date;
+    private Movie(Parcel in) {
+        id = in.readInt();
+        vote_count = in.readInt();
+
+        vote_average = in.readDouble();
+        backdrop_path = in.readString();
+        original_language = in.readString();
+        original_title = in.readString();
+        overview = in.readString();
+        poster_path = in.readString();
+        title = in.readString();
     }
 
-    public void setRelease_date(String release_date) {
-        this.release_date = release_date;
+    public String toString() {
+        return "Title: " + title + " Rating: " + vote_average;
     }
-
-    public String getRating() {
-        return rating;
-    }
-
-    public void setRating(String rating) {
-        this.rating = rating;
-    }
-
-    /*
-     * A movie object is valid if it has title and poster_path,
-     * this is enough for displaying nicely.
-     */
-    public boolean isValid(){
-        return title != null &&
-                poster_path != null;
-    }
-
 
 
 }
