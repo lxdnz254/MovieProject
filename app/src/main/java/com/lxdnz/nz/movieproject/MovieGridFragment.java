@@ -1,5 +1,6 @@
 package com.lxdnz.nz.movieproject;
 
+import android.content.Intent;
 import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -69,12 +70,16 @@ public class MovieGridFragment extends Fragment {
                 getString(R.string.preference_preview_width_default));
 
 
-
+        gridView.setColumnWidth(convertDimension());
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
                 Toast.makeText(getActivity(), "Clicked on " + position,
                         Toast.LENGTH_SHORT).show();
+                Movie movieClicked = imageAdapter.getItem(position);
+                Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
+                        .putExtra("clickedMovie", movieClicked);
+                startActivity(intent);
             }
         });
 
@@ -84,7 +89,12 @@ public class MovieGridFragment extends Fragment {
 
     private void updateMovies() {
         FetchMovieData movieTask = new FetchMovieData();
-        movieTask.execute(getString(R.string.popular));
+        // get SharedPreferences
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
+                getActivity());
+        String filter = sharedPreferences.getString(getString(R.string.preference_sorting_key),
+                getString(R.string.preference_sorting_default));
+        movieTask.execute(filter);
     }
 
     @Override
@@ -172,11 +182,7 @@ public class MovieGridFragment extends Fragment {
             try
 
             {
-                // get SharedPreferences
-                SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
-                        getActivity().getApplicationContext());
-                String filter = sharedPreferences.getString(getString(R.string.preference_sorting_key),
-                        getString(R.string.preference_sorting_default));
+
 
                 // Construct the URL for the themoviedb.or query
                 // Possible parameters are avaiable at tmdb's API page, at
@@ -186,7 +192,7 @@ public class MovieGridFragment extends Fragment {
                         .authority(AUTHORITY)
                         .appendPath(VERSION)
                         .appendPath(MOVIE)
-                        .appendPath(filter)
+                        .appendPath(param[0])
                         .appendQueryParameter(API_KEY, BuildConfig.TMDB_API_KEY)
                         .build();
 

@@ -3,7 +3,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="fill_parent"
     android:layout_height="fill_parent"
-    android:background="@android:color/darker_gray">
+    >
 
     <ImageView
         android:id="@+id/image_view_thumbnail"
@@ -14,7 +14,8 @@
         android:layout_centerInParent="true"
         android:focusable="false"
         android:focusableInTouchMode="false"
-        />
+        android:layout_marginBottom="4dp"
+         />
     <TextView
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

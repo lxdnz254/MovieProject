@@ -6,7 +6,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
-import android.widget.TextView;
 
 import com.squareup.picasso.Picasso;
 
@@ -53,9 +52,10 @@ public class ImageAdapter extends ArrayAdapter<Movie> {
         Picasso.with(mContext)
                 .load(movieItem.getBackdrop_path())
                 .into((ImageView) convertView.findViewById(R.id.image_view_thumbnail));
+        /*
         TextView tv = (TextView)convertView.findViewById(R.id.image_view_text);
         tv.setText(movieItem.getTitle());
-
+        */
         return convertView;
     }
 

@@ -2,7 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="com.lxdnz.nz.movieproject">
 
-       <!-- needed for access to the internet  -->
+    <!-- needed for access to the internet -->
     <uses-permission android:name="android.permission.INTERNET" />
 
     <application
@@ -17,6 +17,13 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+        </activity>
+        <activity android:name=".MovieDetailActivity"
+            android:label="@string/movies"
+            android:parentActivityName=".MainActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value="com.lxdnz.nz.movieproject.MainActivity"/>
         </activity>
     </application>
 
