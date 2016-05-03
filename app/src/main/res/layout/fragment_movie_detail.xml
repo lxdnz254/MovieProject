@@ -26,8 +26,8 @@
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
         android:textAppearance="?android:attr/textAppearanceMedium"
-        android:text="Original language"
-        android:id="@+id/original_language" />
+        android:text="Release Date"
+        android:id="@+id/release_date" />
 
     <TextView
         android:layout_width="wrap_content"

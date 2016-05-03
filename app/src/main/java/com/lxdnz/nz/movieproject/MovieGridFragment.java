@@ -41,6 +41,7 @@ public class MovieGridFragment extends Fragment {
     private String dimension;
     private ImageAdapter imageAdapter;
 
+
     private OnFragmentInteractionListener mListener;
 
     public MovieGridFragment() {
@@ -53,6 +54,7 @@ public class MovieGridFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (getArguments() != null) {
 
         }
@@ -267,7 +269,7 @@ public class MovieGridFragment extends Fragment {
             final String OVERVIEW = "overview";
             final String ID = "id";
             final String ORIGINAL_TITLE = "original_title";
-            final String ORIGINAL_LANGUAGE = "original_language";
+            final String RELEASE_DATE = "release_date";
             final String TITLE = "title";
             final String BACKDROP_PATH = "backdrop_path";
             final String VOTE_AVERAGE = "vote_average";
@@ -285,7 +287,7 @@ public class MovieGridFragment extends Fragment {
                 String overview = movieToParse.getString(OVERVIEW);
                 int id = movieToParse.getInt(ID);
                 String originalTitle = movieToParse.getString(ORIGINAL_TITLE);
-                String originalLanguage = movieToParse.getString(ORIGINAL_LANGUAGE);
+                String releaseDate = movieToParse.getString(RELEASE_DATE);
                 String title = movieToParse.getString(TITLE);
 
                 double voteAverage = movieToParse.getDouble(VOTE_AVERAGE);
@@ -310,7 +312,7 @@ public class MovieGridFragment extends Fragment {
                 String posterPath = uriPoster.toString();
                 arrayOfMovies[i] = new Movie(title,
                         originalTitle,
-                        originalLanguage,
+                        releaseDate,
                         overview,
                         posterPath,
                         backdropPath,
