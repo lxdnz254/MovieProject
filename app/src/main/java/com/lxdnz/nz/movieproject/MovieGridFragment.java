@@ -13,7 +13,6 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
-import android.widget.Toast;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -48,15 +47,11 @@ public class MovieGridFragment extends Fragment {
         // Required empty public constructor
     }
 
-
-
-
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
         if (getArguments() != null) {
-
         }
     }
 
@@ -65,19 +60,18 @@ public class MovieGridFragment extends Fragment {
                              Bundle savedInstanceState) {
         View rootView = inflater.inflate(R.layout.fragment_movie_grid, container, false);
 
-
         gridView = (GridView) rootView.findViewById(R.id.gridview);
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getContext());
         dimension = sharedPreferences.getString(getString(R.string.preference_preview_width),
                 getString(R.string.preference_preview_width_default));
-
-
         gridView.setColumnWidth(convertDimension());
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
+                /*
                 Toast.makeText(getActivity(), "Clicked on " + position,
                         Toast.LENGTH_SHORT).show();
+                        */
                 Movie movieClicked = imageAdapter.getItem(position);
                 Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
                         .putExtra("clickedMovie", movieClicked);
@@ -88,6 +82,8 @@ public class MovieGridFragment extends Fragment {
         // Inflate the layout for this fragment
         return rootView;
     }
+
+
 
     private void updateMovies() {
         FetchMovieData movieTask = new FetchMovieData();
@@ -106,7 +102,7 @@ public class MovieGridFragment extends Fragment {
     }
 
     private int convertDimension() {
-        return Integer.parseInt(dimension.substring(1));
+        return Integer.parseInt(getString(R.string.preference_preview_width_default).substring(1));
     }
 
 
@@ -184,7 +180,6 @@ public class MovieGridFragment extends Fragment {
             try
 
             {
-
 
                 // Construct the URL for the themoviedb.or query
                 // Possible parameters are avaiable at tmdb's API page, at
@@ -297,7 +292,7 @@ public class MovieGridFragment extends Fragment {
                         .authority(AUTHORITY_IMAGE)
                         .appendPath(T)
                         .appendPath(P)
-                        .appendPath(dimension)
+                        .appendPath(getString(R.string.preference_preview_width_default))
                         .appendEncodedPath(movieToParse.getString(BACKDROP_PATH))
                         .build();
                 String backdropPath = uriBackdrop.toString();

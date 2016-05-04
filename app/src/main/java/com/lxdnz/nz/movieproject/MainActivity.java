@@ -1,17 +1,26 @@
 package com.lxdnz.nz.movieproject;
 
+import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
+import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
 public class MainActivity extends AppCompatActivity {
 
+    Context mContext;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_main);
+        setupActionBar();
 
 
         if(savedInstanceState == null) {
@@ -20,6 +29,34 @@ public class MainActivity extends AppCompatActivity {
                     .commit();
         }
     }
+
+    private void setupActionBar() {
+
+        String sortBy;
+        // get SharedPreferences
+        SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(getApplicationContext());
+        String filter = sharedPreferences.getString(getString(R.string.preference_sorting_key),
+                getString(R.string.preference_sorting_default));
+
+        if (filter.contentEquals(getString(R.string.preference_sorting_default))){
+            sortBy = getString(R.string.popular);
+        }else{
+            sortBy = getString(R.string.top_rated);
+        }
+
+        //implement actionBar
+        ActionBar actionBar = getSupportActionBar();
+        if (actionBar != null) {
+            // Set the Title in the action bar.
+
+            actionBar.setTitle(getString(R.string.app_name) + ": "
+                    + sortBy);
+            actionBar.setLogo(R.mipmap.ic_launcher);
+        }
+
+    }
+
+
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {

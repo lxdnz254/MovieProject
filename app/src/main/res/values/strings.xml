@@ -7,8 +7,8 @@
 
     <!-- TMDb urls to request -->
     <string name="movies">http://api.themoviedb.org/3/movie/</string>
-    <string name="top_rated">top_rated</string>
-    <string name="popular">popular</string>
+    <string name="top_rated">Top Rated</string>
+    <string name="popular">Most Popular</string>
 
     <!-- PREFERENCES -->
     <string name="preference_sorting_key" translatable="false">sorting_key</string>
@@ -34,7 +34,7 @@
     </string-array>
     <string-array name="preference_preview_width_entry_values">
         <item>w92</item>
-        <item>w154</item>
+        <item>w185</item>
         <item>w342</item>
         <item>w500</item>
     </string-array>
