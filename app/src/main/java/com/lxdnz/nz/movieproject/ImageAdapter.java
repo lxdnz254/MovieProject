@@ -18,10 +18,6 @@ public class ImageAdapter extends ArrayAdapter<Movie> {
 
     private Context mContext;
     private List<Movie> movies;
-    private String imageUrl;
-    int layoutResourceId;
-    Movie data[] = null;
-
 
     public ImageAdapter(Context context, List<Movie> movies){
         super(context, 0, movies);
@@ -52,10 +48,7 @@ public class ImageAdapter extends ArrayAdapter<Movie> {
         Picasso.with(mContext)
                 .load(movieItem.getBackdrop_path())
                 .into((ImageView) convertView.findViewById(R.id.image_view_thumbnail));
-        /*
-        TextView tv = (TextView)convertView.findViewById(R.id.image_view_text);
-        tv.setText(movieItem.getTitle());
-        */
+
         return convertView;
     }
 

@@ -27,12 +27,6 @@ import java.net.URL;
 import java.util.Arrays;
 
 
-/**
- * A simple {@link Fragment} subclass.
- * Activities that contain this fragment must implement the
- * {@link MovieGridFragment.OnFragmentInteractionListener} interface
- * to handle interaction events.
- */
 public class MovieGridFragment extends Fragment {
 
     private static final String LOG_CAT = MovieGridFragment.class.getSimpleName();
@@ -40,8 +34,6 @@ public class MovieGridFragment extends Fragment {
     private String dimension;
     private ImageAdapter imageAdapter;
 
-
-    private OnFragmentInteractionListener mListener;
 
     public MovieGridFragment() {
         // Required empty public constructor
@@ -68,10 +60,7 @@ public class MovieGridFragment extends Fragment {
         gridView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View v,
                                     int position, long id) {
-                /*
-                Toast.makeText(getActivity(), "Clicked on " + position,
-                        Toast.LENGTH_SHORT).show();
-                        */
+
                 Movie movieClicked = imageAdapter.getItem(position);
                 Intent intent = new Intent(getActivity(), MovieDetailActivity.class)
                         .putExtra("clickedMovie", movieClicked);
@@ -82,8 +71,6 @@ public class MovieGridFragment extends Fragment {
         // Inflate the layout for this fragment
         return rootView;
     }
-
-
 
     private void updateMovies() {
         FetchMovieData movieTask = new FetchMovieData();
@@ -103,50 +90,6 @@ public class MovieGridFragment extends Fragment {
 
     private int convertDimension() {
         return Integer.parseInt(getString(R.string.preference_preview_width_default).substring(1));
-    }
-
-
-    /**
-     * Blank out to implement later
-
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-    }
-
-    @Override
-    public void onAttach(Context context) {
-        super.onAttach(context);
-        if (context instanceof OnFragmentInteractionListener) {
-            mListener = (OnFragmentInteractionListener) context;
-        } else {
-            throw new RuntimeException(context.toString()
-                    + " must implement OnFragmentInteractionListener");
-        }
-    }
-
-    @Override
-    public void onDetach() {
-        super.onDetach();
-        mListener = null;
-    }
-
-    /**
-     * This interface must be implemented by activities that contain this
-     * fragment to allow an interaction in this fragment to be communicated
-     * to the activity and potentially other fragments contained in that
-     * activity.
-     * <p/>
-     * See the Android Training lesson <a href=
-     * "http://developer.android.com/training/basics/fragments/communicating.html"
-     * >Communicating with Other Fragments</a> for more information.
-     */
-    public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
-        void onFragmentInteraction(Uri uri);
     }
 
     private class FetchMovieData extends AsyncTask<String, Void, Movie []> {
@@ -174,8 +117,7 @@ public class MovieGridFragment extends Fragment {
             // so that they can be closed in the finally block.
             HttpURLConnection urlConnection = null;
             BufferedReader reader = null;
-            String resultFromFetch = null;
-
+            String resultFromFetch;
 
             try
 
@@ -329,6 +271,4 @@ public class MovieGridFragment extends Fragment {
             }
         }
     }
-
-
 }
