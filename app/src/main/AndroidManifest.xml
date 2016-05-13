@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.lxdnz.nz.movieproject">
+    package="com.lxdnz.nz.movieproject"
+    android:versionCode="2">
 
     <!-- needed for access to the internet -->
     <uses-permission android:name="android.permission.INTERNET" />
