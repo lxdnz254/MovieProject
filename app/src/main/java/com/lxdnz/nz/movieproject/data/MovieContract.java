@@ -51,6 +51,7 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "trailers";
 
+        public static final String TRAILER_MOVIE_ID = "t_id";
         public static final String TRAILER_ID = "id";
         public static final String TRAILER_KEY = "key";
         public static final String TRAILER_NAME = "name";
@@ -65,6 +66,7 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "reviews";
 
+        public static final String REVIEW_MOVIE_ID = "r_id";
         public static final String REVIEW_ID = "id";
         public static final String REVIEW_AUTHOR = "author";
         public static final String REVIEW_CONTENT = "content";
