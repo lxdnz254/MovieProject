@@ -46,7 +46,7 @@ public class ImageAdapter extends ArrayAdapter<Movie> {
         }
 
         Picasso.with(mContext)
-                .load(movieItem.getBackdrop_path())
+                .load(movieItem.getPoster_path())
                 .into((ImageView) convertView.findViewById(R.id.image_view_thumbnail));
 
         return convertView;

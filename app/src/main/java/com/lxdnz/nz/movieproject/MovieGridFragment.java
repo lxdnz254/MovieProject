@@ -89,7 +89,7 @@ public class MovieGridFragment extends Fragment {
     }
 
     private int convertDimension() {
-        return Integer.parseInt(getString(R.string.preference_preview_width_default).substring(1));
+        return Integer.parseInt(dimension.substring(1));
     }
 
     private class FetchMovieData extends AsyncTask<String, Void, Movie []> {
