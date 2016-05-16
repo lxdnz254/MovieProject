@@ -16,6 +16,21 @@ public class TestDb extends AndroidTestCase {
 
     public static final String LOG_TAG = TestDb.class.getSimpleName();
 
+    // since we want to start with a clean slate each test
+    void deleteTheDatabase() {
+        mContext.deleteDatabase(MovieDBHelper.DATABASE_NAME);
+
+    }
+
+    /**
+     * this function gets called before each test. it executes the delete the database call
+     *
+     */
+
+    public void setUp() {
+        deleteTheDatabase();
+    }
+
     // Note that this only tests the creation of Trailer & Review databases
     // as the code for the Movie Db is supplied in Utilities.
 
