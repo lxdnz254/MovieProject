@@ -88,6 +88,7 @@ public class TestDb extends AndroidTestCase {
         // if this fails, the database doesn't contain all the movie entry columns required
         assertTrue("Error: the database doesn't contain all the required Movie entry columns",
                 movieColumnHashSet.isEmpty());
+        c.close();
 
         // Now test Trailer Table
         c = db.rawQuery("PRAGMA table_info(" + MovieContract.TrailerEntry.TABLE_NAME + ")", null);
@@ -113,6 +114,7 @@ public class TestDb extends AndroidTestCase {
         // if this fails, the database doesn't contain all trailer entry columns required
         assertTrue("Error: the database doesn't contain all the required Trailer entry columns",
                 trailerColumnHashSet.isEmpty());
+        c.close();
 
         // Now test Review Table
         c = db.rawQuery("PRAGMA table_info(" + MovieContract.ReviewEntry.TABLE_NAME + ")", null);
@@ -137,91 +139,38 @@ public class TestDb extends AndroidTestCase {
         // if this fails, the database doesn't contain all review entry columns required.
         assertTrue("Error: the database doesn't contain all the required Review entry columns",
                 reviewColumnHashSet.isEmpty());
+        c.close();
+        // now close the database
         db.close();
     }
 
     public void testMovieTable() {
-        // insert movie records into the database
-        MovieDBHelper dbHelper = new MovieDBHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues testValues = TestUtilities.createMovieValues();
-        long movieRowId;
-        movieRowId = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, testValues);
-
-        // verify if we get a row back
-        assertTrue("Error: Failure to insert Movie Values", movieRowId != -1);
-
-        // Data is inserted IN THEORY, pull some out to verify its made the round trip.
-        Cursor cursor = db.query(MovieContract.MovieEntry.TABLE_NAME, // table name
-                null, // all columns
-                null, // Columns for the "WHERE" clause
-                null, // Values for the "WHERE" clause
-                null, // Columns to group by
-                null, // Columns to filter by row groups
-                null  // Sort order
-                 );
-
-        // Move the cursor to valid database row and see if we get any records back
-        // from the query
-        assertTrue("Error: No records returned from Movie query.", cursor.moveToFirst() );
-        // Validate the data
-        TestUtilities.validateCurrentRecord("Error: Movie query validation failed", cursor, testValues);
-        // move the cursor to demonstrate there's only one record in the database
-        assertFalse("Error: More than one record returned from Movie query", cursor.moveToNext() );
-        // close the the cursor and database
-        cursor.close();
-        db.close();
+        insertMovie();
     }
 
     public void testTrailerTable() {
-        // insert trailer records into the database
-        MovieDBHelper dbHelper = new MovieDBHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues testValues = TestUtilities.createTrailerValues();
-        long trailerRowId;
-        trailerRowId = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, testValues);
+        // insert movie first and get back the movie_id to insert in to Trailer table
+        int movieId = insertMovie();
+        // make sure we have a valid movie_id
+        assertFalse("Error: Movie not inserted correctly", movieId == -1);
 
-        // verify if we get a row back
-        assertTrue("Error: Failure to insert Trailer Values", trailerRowId != -1);
+        long trailerInsert = TestUtilities.insertTrailerValues(mContext, movieId);
 
-        // Data is inserted IN THEORY, pull some out to verify its made the round trip.
-        Cursor cursor = db.query(MovieContract.TrailerEntry.TABLE_NAME,
-                null, null, null, null, null, null);
-        // Move the cursor to valid database row and see if we get any records back
-        // from the query
-        assertTrue("Error: No records returned from Trailer query.", cursor.moveToFirst() );
-        // Validate the data
-        TestUtilities.validateCurrentRecord("Error: Trailer query validation failed", cursor, testValues);
-        // move the cursor to demonstrate there's only one record in the database
-        assertFalse("Error: More than one record returned from Trailer query", cursor.moveToNext() );
-        // close the cursor and database
-        cursor.close();
-        db.close();
+        assertFalse("Error: Trailer not inserted correctly", trailerInsert == -1L);
     }
 
     public void testReviewTable() {
-        // insert review records into the database
-        MovieDBHelper dbHelper = new MovieDBHelper(mContext);
-        SQLiteDatabase db = dbHelper.getWritableDatabase();
-        ContentValues testValues = TestUtilities.createReviewValues();
-        long reviewRowId;
-        reviewRowId = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, testValues);
+        // insert movie first and get back movie_id to insert in to Review table
+        int movieId = insertMovie();
+        // make sure we have a valid movie_id
+        assertFalse("Error: Movie not inserted correctly", movieId == -1);
 
-        // verify if we get a row back
-        assertTrue("Error: Failure to insert Review Values", reviewRowId != -1);
+        long reviewInsert = TestUtilities.insertReviewValues(mContext, movieId);
 
-        // Data is inserted IN THEORY, pull some out to verify its made the round trip.
-        Cursor cursor = db.query(MovieContract.ReviewEntry.TABLE_NAME,
-                null, null, null, null, null, null);
-        // Move the cursor to valid databse row and see if we get any records back
-        // from the query.
-        assertTrue("Error: No records returned from Review query.", cursor.moveToFirst() );
-        // Validate the data
-        TestUtilities.validateCurrentRecord("Error: Review query validation failed", cursor, testValues);
-        // move the cursor to demonstrate there's only one record in the database
-        assertFalse("Error: More than one record returned from Review query", cursor.moveToNext() );
-        // close the cursor and database
-        cursor.close();
-        db.close();
+        assertFalse("Error: Review not inserted correctly", reviewInsert == -1L);
+    }
+
+    public int insertMovie(){
+        return TestUtilities.insertMovieValues(mContext);
     }
 }
