@@ -55,6 +55,7 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 // set up the movie_id column as a foreign key to trailer & review tables
                 " FOREIGN KEY (" + TrailerEntry.TRAILER_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.MOVIE_ID + "), " +
+
                 // assign unique id to each trailer
                 " UNIQUE (" + TrailerEntry.TRAILER_ID + ") ON CONFLICT REPLACE);";
 
@@ -68,9 +69,9 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 ReviewEntry.REVIEW_URL + " TEXT NOT NULL, " +
 
                 // set up the movie_id column as a foreign key to trailer & review tables
-
                 " FOREIGN KEY (" + ReviewEntry.REVIEW_MOVIE_ID + ") REFERENCES " +
                 MovieEntry.TABLE_NAME + " (" + MovieEntry.MOVIE_ID + "), " +
+
                 // assign unique id to each review
                 " UNIQUE (" + ReviewEntry.REVIEW_ID + ") ON CONFLICT REPLACE);";
 
