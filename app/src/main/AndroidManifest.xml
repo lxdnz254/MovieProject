@@ -36,6 +36,9 @@
                 android:value="com.lxdnz.nz.movieproject.MainActivity"
                 />
         </activity>
+        <provider
+            android:authorities="com.lxdnz.nz.movieproject"
+            android:name=".data.MovieProvider"/>
     </application>
 
 </manifest>

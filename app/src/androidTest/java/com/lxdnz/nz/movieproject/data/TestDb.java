@@ -1,12 +1,8 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.data;
 
-import android.content.ContentValues;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
-
-import com.lxdnz.nz.movieproject.data.MovieContract;
-import com.lxdnz.nz.movieproject.data.MovieDBHelper;
 
 import java.util.HashSet;
 
@@ -69,7 +65,6 @@ public class TestDb extends AndroidTestCase {
         // build HashSets of the columns we wish to look for.
         final HashSet<String> movieColumnHashSet = new HashSet<>();
 
-        movieColumnHashSet.add(MovieContract.MovieEntry.MOVIE_ID);
         movieColumnHashSet.add(MovieContract.MovieEntry.MOVIE_TITLE);
         movieColumnHashSet.add(MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE);
         movieColumnHashSet.add(MovieContract.MovieEntry.MOVIE_OVERVIEW);

@@ -8,11 +8,14 @@ import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
 import android.support.annotation.Nullable;
+import android.util.Log;
 
 /**
  * Created by alex on 17/05/16.
  */
 public class MovieProvider extends ContentProvider{
+
+    private static final String LOG_TAG = MovieProvider.class.getSimpleName();
 
     // the URI Matcher used by this content provider
     private static final UriMatcher sUriMatcher = buildUriMatcher();
@@ -121,26 +124,31 @@ public class MovieProvider extends ContentProvider{
         switch (match) {
             case MOVIE: {
                 long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
-                if (_id > 0)
+                Log.v(LOG_TAG, "The _id is: "+_id);
+                if (_id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
-                else
+                    Log.v(LOG_TAG, "The returnUri is: "+returnUri);
+                }else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
                 break;
             }
             case TRAILER: {
                 long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, values);
-                if (_id > 0)
+                if (_id > 0) {
                     returnUri = MovieContract.TrailerEntry.buildTrailersUri(_id);
-                else
+                }else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
                 break;
             }
             case REVIEW: {
                 long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, values);
-                if (_id > 0)
+                if (_id > 0) {
                     returnUri = MovieContract.ReviewEntry.buildReviewUri(_id);
-                else
-                    throw new android.database.SQLException("Failed to insert row into "+ uri);
+                }else {
+                    throw new android.database.SQLException("Failed to insert row into " + uri);
+                }
                 break;
             }
             default:

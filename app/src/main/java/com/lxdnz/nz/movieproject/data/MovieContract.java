@@ -5,11 +5,14 @@ import android.content.ContentUris;
 import android.net.Uri;
 import android.provider.BaseColumns;
 import android.text.format.Time;
+import android.util.Log;
 
 /**
  * Created by alex on 14/05/16.
  */
 public class MovieContract {
+
+    public static final String LOG_TAG = MovieContract.class.getSimpleName();
 
     public static final String CONTENT_AUTHORITY = "com.lxdnz.nz.movieproject";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
@@ -46,11 +49,21 @@ public class MovieContract {
 
         // build movies Uri
         public static Uri buildMovieUri(long id) {
+            Uri builtUri = ContentUris.withAppendedId(CONTENT_URI, id);
+            Log.v(LOG_TAG, "builtUri is :" + builtUri);
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
+        // build movie Uri with movieID
+        public static Uri buildMovieWithId(long movieId){
+            String stringId = Long.toString(movieId);
+            Uri builtUri = CONTENT_URI.buildUpon().appendPath(stringId).build();
+            Log.v(LOG_TAG, "Content Uri is: "+builtUri);
+            return builtUri;
+        }
+
         public static final String [] MOVIE_COLUMNS = {
-                MOVIE_ID,
+                TABLE_NAME + "." + MOVIE_ID,
                 MOVIE_TITLE,
                 MOVIE_ORIGINAL_TITLE,
                 MOVIE_OVERVIEW,
@@ -60,6 +73,7 @@ public class MovieContract {
                 MOVIE_VOTE_AVERAGE,
                 MOVIE_VOTE_COUNT
         };
+
 
         public static final int COL_MOVIE_ID = 0;
         public static final int COL_MOVIE_TITLE = 1;

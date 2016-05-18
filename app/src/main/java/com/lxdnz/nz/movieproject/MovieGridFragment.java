@@ -1,5 +1,6 @@
 package com.lxdnz.nz.movieproject;
 
+import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -18,6 +19,7 @@ public class MovieGridFragment extends Fragment {
     public GridView gridView;
     public String dimension;
     public ImageAdapter imageAdapter;
+    public Context mContext;
 
 
     public MovieGridFragment() {
@@ -58,7 +60,7 @@ public class MovieGridFragment extends Fragment {
     }
 
     private void updateMovies() {
-        FetchMovieData movieTask = new FetchMovieData(this);
+        FetchMovieData movieTask = new FetchMovieData(this, mContext);
         // get SharedPreferences
         SharedPreferences sharedPreferences = PreferenceManager.getDefaultSharedPreferences(
                 getActivity());

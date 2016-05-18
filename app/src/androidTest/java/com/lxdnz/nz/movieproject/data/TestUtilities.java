@@ -1,13 +1,10 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.data;
 
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.database.sqlite.SQLiteDatabase;
 import android.test.AndroidTestCase;
-
-import com.lxdnz.nz.movieproject.data.MovieContract;
-import com.lxdnz.nz.movieproject.data.MovieDBHelper;
 
 import java.util.Map;
 import java.util.Set;

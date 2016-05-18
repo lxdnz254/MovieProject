@@ -27,7 +27,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
         // create the movie table which will link through to trailer and review tables
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-                MovieEntry.MOVIE_ID + " INTEGER NOT NULL PRIMARY KEY," +
+                MovieEntry._ID + "INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
+                MovieEntry.MOVIE_ID + " INTEGER NOT NULL, " +
                 MovieEntry.MOVIE_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.MOVIE_ORIGINAL_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.MOVIE_OVERVIEW + " TEXT NOT NULL, " +
@@ -35,13 +36,13 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 MovieEntry.MOVIE_POSTER_PATH + " TEXT NOT NULL, " +
                 MovieEntry.MOVIE_BACKDROP_PATH + " TEXT NOT NULL, " +
                 MovieEntry.MOVIE_VOTE_AVERAGE + " REAL NOT NULL, " +
-                MovieEntry.MOVIE_VOTE_COUNT + " INTEGER NOT NULL, " +
+                MovieEntry.MOVIE_VOTE_COUNT + " INTEGER NOT NULL); "; //+
 
 
 
                 // to assure the app has only one entry per movie selected, its created
-                // a UNIQUE constraint with REPLACE strategy.
-                " UNIQUE (" + MovieEntry.MOVIE_ID + ") ON CONFLICT REPLACE);";
+                // a PRIMARY KEY constraint with REPLACE strategy.
+                // "PRIMARY KEY ON CONFLICT REPLACE);";
 
         // create trailer table
         final String SQL_CREATE_TRAILER_TABLE = "CREATE TABLE " + TrailerEntry.TABLE_NAME + " (" +
@@ -75,9 +76,11 @@ public class MovieDBHelper extends SQLiteOpenHelper {
                 // assign unique id to each review
                 " UNIQUE (" + ReviewEntry.REVIEW_ID + ") ON CONFLICT REPLACE);";
 
+
         db.execSQL(SQL_CREATE_MOVIE_TABLE);
         db.execSQL(SQL_CREATE_TRAILER_TABLE);
         db.execSQL(SQL_CREATE_REVIEWS_TABLE);
+        db.execSQL("PRAGMA recursive_triggers = 'ON';");
 
     }
 
