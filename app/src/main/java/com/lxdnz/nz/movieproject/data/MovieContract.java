@@ -33,6 +33,7 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "movies";
 
+
         // this is the foreign key to the other tables
         public static final String MOVIE_ID = "id";
         // general information for each id(movie)
@@ -63,6 +64,7 @@ public class MovieContract {
         }
 
         public static final String [] MOVIE_COLUMNS = {
+                _ID,
                 TABLE_NAME + "." + MOVIE_ID,
                 MOVIE_TITLE,
                 MOVIE_ORIGINAL_TITLE,
@@ -74,16 +76,16 @@ public class MovieContract {
                 MOVIE_VOTE_COUNT
         };
 
-
-        public static final int COL_MOVIE_ID = 0;
-        public static final int COL_MOVIE_TITLE = 1;
-        public static final int COL_MOVIE_ORIGINAL_TITLE = 2;
-        public static final int COL_MOVIE_OVERVIEW = 3;
-        public static final int COL_MOVIE_RELEASE_DATE = 4;
-        public static final int COL_MOVIE_POSTER_PATH = 5;
-        public static final int COL_MOVIE_BACKDROP_PATH = 6;
-        public static final int COL_MOVIE_VOTE_AVERAGE = 7;
-        public static final int COL_MOVIE_VOTE_COUNT = 8;
+        public static final int COL_ID_MOVIE = 0;
+        public static final int COL_MOVIE_ID = 1;
+        public static final int COL_MOVIE_TITLE = 2;
+        public static final int COL_MOVIE_ORIGINAL_TITLE = 3;
+        public static final int COL_MOVIE_OVERVIEW = 4;
+        public static final int COL_MOVIE_RELEASE_DATE = 5;
+        public static final int COL_MOVIE_POSTER_PATH = 6;
+        public static final int COL_MOVIE_BACKDROP_PATH = 7;
+        public static final int COL_MOVIE_VOTE_AVERAGE = 8;
+        public static final int COL_MOVIE_VOTE_COUNT = 9;
 
     }
 

@@ -38,6 +38,7 @@ public class TestUtilities extends AndroidTestCase{
 
     static ContentValues createMovieValues() {
         ContentValues movieValues = new ContentValues();
+
         movieValues.put(MovieContract.MovieEntry.MOVIE_ID, TEST_ID);
         movieValues.put(MovieContract.MovieEntry.MOVIE_TITLE, "Jurassic World");
         movieValues.put(MovieContract.MovieEntry.MOVIE_ORIGINAL_TITLE, "Jurassic World");
@@ -104,7 +105,7 @@ public class TestUtilities extends AndroidTestCase{
 
         // get the Movie_ID entry
         int movieId;
-        movieId = cursor.getInt(0);
+        movieId = cursor.getInt(1);
 
         // move the cursor to demonstrate there's only one record in the database
         assertFalse("Error: More than one record returned from Movie query", cursor.moveToNext() );

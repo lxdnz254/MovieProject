@@ -27,8 +27,8 @@ public class MovieDBHelper extends SQLiteOpenHelper {
 
         // create the movie table which will link through to trailer and review tables
         final String SQL_CREATE_MOVIE_TABLE = "CREATE TABLE " + MovieEntry.TABLE_NAME + " (" +
-                MovieEntry._ID + "INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT, " +
-                MovieEntry.MOVIE_ID + " INTEGER NOT NULL, " +
+
+                MovieEntry.MOVIE_ID + " INTEGER NOT NULL PRIMARY KEY, " +
                 MovieEntry.MOVIE_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.MOVIE_ORIGINAL_TITLE + " TEXT NOT NULL, " +
                 MovieEntry.MOVIE_OVERVIEW + " TEXT NOT NULL, " +

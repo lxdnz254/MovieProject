@@ -10,6 +10,8 @@ import android.net.Uri;
 import android.support.annotation.Nullable;
 import android.util.Log;
 
+import java.util.HashMap;
+
 /**
  * Created by alex on 17/05/16.
  */
@@ -20,6 +22,7 @@ public class MovieProvider extends ContentProvider{
     // the URI Matcher used by this content provider
     private static final UriMatcher sUriMatcher = buildUriMatcher();
     private MovieDBHelper mOpenHelper;
+    private static HashMap<String, String> sMovieProjectionMap;
 
     static final int MOVIE = 100;
     static final int TRAILER = 200;
@@ -35,6 +38,9 @@ public class MovieProvider extends ContentProvider{
         matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE);
         matcher.addURI(authority, MovieContract.PATH_TRAILERS, TRAILER);
         matcher.addURI(authority, MovieContract.PATH_REVIEWS, REVIEW);
+
+        sMovieProjectionMap = new HashMap<>();
+        sMovieProjectionMap.put(MovieContract.MovieEntry.MOVIE_ID, "movies.id as _id");
         // 3) return the new matcher
         return matcher;
     }

@@ -63,13 +63,13 @@ class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
 
             Cursor favoriteCursor = mContext.getContentResolver().query(
                     MovieContract.MovieEntry.CONTENT_URI,
-                    new String[]{MovieContract.MovieEntry.MOVIE_ID + " as _id"},
-                    MovieContract.MovieEntry.COL_MOVIE_ID + "= ?",
+                    new String[]{MovieContract.MovieEntry.MOVIE_ID},
+                    MovieContract.MovieEntry.MOVIE_ID + " = ?",
                     new String[]{stringId},
                     null
             );
 
-
+        Log.v(LOG_TAG,"favCursor is :"+favoriteCursor);
 
         if (favoriteCursor.moveToFirst()){
             int favMovieIdIndex = favoriteCursor.getColumnIndex(MovieContract.MovieEntry.MOVIE_ID);
