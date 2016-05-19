@@ -18,8 +18,8 @@ public class MovieContract {
     public static final String CONTENT_AUTHORITY = "com.lxdnz.nz.movieproject";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_MOVIES = "movies";
-    public static final String PATH_TRAILERS = "#/trailers";
-    public static final String PATH_REVIEWS = "#/reviews";
+    public static final String PATH_TRAILERS = "trailers";
+    public static final String PATH_REVIEWS = "reviews";
 
     /**
      * Inner class that defines the favorite movie entries
@@ -31,6 +31,8 @@ public class MovieContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_MOVIES;
 
         public static final String TABLE_NAME = "movies";
 
@@ -61,7 +63,6 @@ public class MovieContract {
         }
 
         public static final String [] MOVIE_COLUMNS = {
-                _ID,
                 TABLE_NAME + "." + MOVIE_ID,
                 MOVIE_TITLE,
                 MOVIE_ORIGINAL_TITLE,
@@ -73,16 +74,15 @@ public class MovieContract {
                 MOVIE_VOTE_COUNT
         };
 
-        public static final int COL_ID_MOVIE = 0;
-        public static final int COL_MOVIE_ID = 1;
-        public static final int COL_MOVIE_TITLE = 2;
-        public static final int COL_MOVIE_ORIGINAL_TITLE = 3;
-        public static final int COL_MOVIE_OVERVIEW = 4;
-        public static final int COL_MOVIE_RELEASE_DATE = 5;
-        public static final int COL_MOVIE_POSTER_PATH = 6;
-        public static final int COL_MOVIE_BACKDROP_PATH = 7;
-        public static final int COL_MOVIE_VOTE_AVERAGE = 8;
-        public static final int COL_MOVIE_VOTE_COUNT = 9;
+        public static final int COL_MOVIE_ID = 0;
+        public static final int COL_MOVIE_TITLE = 1;
+        public static final int COL_MOVIE_ORIGINAL_TITLE = 2;
+        public static final int COL_MOVIE_OVERVIEW = 3;
+        public static final int COL_MOVIE_RELEASE_DATE = 4;
+        public static final int COL_MOVIE_POSTER_PATH = 5;
+        public static final int COL_MOVIE_BACKDROP_PATH = 6;
+        public static final int COL_MOVIE_VOTE_AVERAGE = 7;
+        public static final int COL_MOVIE_VOTE_COUNT = 8;
 
     }
 
@@ -99,7 +99,10 @@ public class MovieContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/"
-                        + PATH_MOVIES + "/#/" + PATH_TRAILERS;
+                        + PATH_MOVIES + "/" + PATH_TRAILERS;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/"
+                        + PATH_MOVIES + "/" + PATH_TRAILERS;
 
         public static final String TABLE_NAME = "trailers";
 
@@ -109,9 +112,8 @@ public class MovieContract {
         public static final String TRAILER_NAME = "name";
         public static final String TRAILER_SIZE = "size";
 
-        // build Trailers Uri
+        // build Trailers Uri's
         public static Uri buildTrailersUri(long id) {
-
             return ContentUris.withAppendedId(TRAILER_URI, id);
         }
 
@@ -142,7 +144,10 @@ public class MovieContract {
 
         public static final String CONTENT_TYPE =
                 ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/"
-                        + PATH_MOVIES + "/#/" + PATH_REVIEWS;
+                        + PATH_MOVIES + "/" + PATH_REVIEWS;
+        public static final String CONTENT_ITEM_TYPE =
+                ContentResolver.CURSOR_ITEM_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/"
+                        + PATH_MOVIES + "/" + PATH_REVIEWS;
 
         public static final String TABLE_NAME = "reviews";
 
@@ -156,6 +161,7 @@ public class MovieContract {
         public static Uri buildReviewUri(long id) {
             return ContentUris.withAppendedId(REVIEW_URI, id);
         }
+
 
         public static final String [] REVIEW_COLUMNS = {
                 _ID,

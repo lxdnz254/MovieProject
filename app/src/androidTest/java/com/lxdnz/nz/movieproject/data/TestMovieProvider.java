@@ -120,31 +120,34 @@ public class TestMovieProvider extends AndroidTestCase{
         // content://com.lxdnz.nz.movieproject/movies/135397
         type = resolver.getType(MovieEntry.buildMovieUri(testId));
         // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/movies
-        assertEquals("Error: the MovieEntry CONTENT_URI with ID should return MovieEntry.CONTENT_TYPE",
-                 MovieEntry.CONTENT_TYPE, type);
+        assertEquals("Error: the MovieEntry CONTENT_URI with ID should return MovieEntry.CONTENT_ITEM_TYPE",
+                 MovieEntry.CONTENT_ITEM_TYPE, type);
 
-        // content://com.lxdnz.nz.movieproject/trailers/
+        // content://com.lxdnz.nz.movieproject/movies/trailers/
         type = resolver.getType(TrailerEntry.TRAILER_URI);
-        // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/trailers
-        assertEquals("Error: the TrailerEntry CONTENT_URI should return TrailerEnrty.CONTENT_TYPE",
+        Log.v(LOG_TAG, "Trailer Uri is:"+ TrailerEntry.TRAILER_URI.toString());
+        Log.v(LOG_TAG, "Trailer Content type is:"+ TrailerEntry.CONTENT_TYPE);
+        Log.v(LOG_TAG, "Trailer Uri Type is:"+type.toString());
+        // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/movies/trailers
+        assertEquals("Error: the TrailerEntry CONTENT_URI should return TrailerEntry.CONTENT_TYPE",
                 TrailerEntry.CONTENT_TYPE, type);
         long testTrailerId = 0;
-        // content://com.lxdnz.nz.movieproject/trailers/0
+        // content://com.lxdnz.nz.movieproject/movies/trailers/0
         type = resolver.getType(TrailerEntry.buildTrailersUri(testTrailerId));
-        // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/trailers
-        assertEquals("Error: the TrailerEntry CONTENT_URI with ID should return TrailerEntry.CONTENT_TYPE",
-                TrailerEntry.CONTENT_TYPE, type);
+        // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/movies/trailers
+        assertEquals("Error: the TrailerEntry CONTENT_URI with ID should return TrailerEntry.CONTENT_ITEM_TYPE",
+                TrailerEntry.CONTENT_ITEM_TYPE, type);
 
-        // content://com.lxdnz.nz.movieproject/reviews/
+        // content://com.lxdnz.nz.movieproject/movies/reviews/
         type = resolver.getType(ReviewEntry.REVIEW_URI);
         assertEquals("Error: the ReviewEntry CONTENT_URI should return ReviewEntry.CONTENT_TYPE",
                 ReviewEntry.CONTENT_TYPE, type);
         long testReviewId = 0;
-        // content://com.lxdnz.nz.movieproject/reviews/0
-        type = resolver.getType(TrailerEntry.buildTrailersUri(testReviewId));
+        // content://com.lxdnz.nz.movieproject/movies/reviews/0
+        type = resolver.getType(ReviewEntry.buildReviewUri(testReviewId));
         // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/reviews
-        assertEquals("Error: the ReviewEntry CONTENT_URI with ID should return ReviewEntry.CONTENT_TYPE",
-                TrailerEntry.CONTENT_TYPE, type);
+        assertEquals("Error: the ReviewEntry CONTENT_URI with ID should return ReviewEntry.CONTENT_ITEM_TYPE",
+                ReviewEntry.CONTENT_ITEM_TYPE, type);
     }
 
     public void testBasicMovieQuery(){
@@ -346,7 +349,17 @@ public class TestMovieProvider extends AndroidTestCase{
         TestUtilities.validateCursor("testInsertReadProvider. Error validating MovieEntry.buildMovieWithId.",
                 buildMovieIdCursor, testValues);
 
-
+        // do same cursor checks for TrailerEntry.buildTrailerUri and ReviewEntry.buildReviewUri
+        Cursor buildTrailerCursor = mContext.getContentResolver().query(
+                TrailerEntry.buildTrailersUri(0), null, null, null, null);
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating TrailerEntry.buildTrailersUri.",
+                buildTrailerCursor, trailerValues);
+        Cursor buildReviewCursor = mContext.getContentResolver().query(
+                ReviewEntry.buildReviewUri(0), null, null, null, null);
+        TestUtilities.validateCursor("tetsInsertReadProvider. Error validating ReviewEntry.buildReviewUri.",
+                buildReviewCursor, reviewValues);
     }
+
+
 
 }
