@@ -25,6 +25,7 @@ public class MovieProvider extends ContentProvider{
     private static HashMap<String, String> sMovieProjectionMap;
 
     static final int MOVIE = 100;
+    static final int MOVIE_WITH_ID = 101;
     static final int TRAILER = 200;
     static final int REVIEW = 300;
 
@@ -36,6 +37,7 @@ public class MovieProvider extends ContentProvider{
         // 2) Use the addURI function to match each of the types.  Use the constants from
         // MovieContract to help define the types to the UriMatcher.
         matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE);
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_ID);
         matcher.addURI(authority, MovieContract.PATH_TRAILERS, TRAILER);
         matcher.addURI(authority, MovieContract.PATH_REVIEWS, REVIEW);
 
@@ -60,6 +62,7 @@ public class MovieProvider extends ContentProvider{
 
         switch (match){
             case MOVIE:
+            case MOVIE_WITH_ID:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
             case TRAILER:
                 return MovieContract.TrailerEntry.CONTENT_TYPE;
@@ -130,10 +133,8 @@ public class MovieProvider extends ContentProvider{
         switch (match) {
             case MOVIE: {
                 long _id = db.insert(MovieContract.MovieEntry.TABLE_NAME, null, values);
-                Log.v(LOG_TAG, "The _id is: "+_id);
                 if (_id > 0) {
                     returnUri = MovieContract.MovieEntry.buildMovieUri(_id);
-                    Log.v(LOG_TAG, "The returnUri is: "+returnUri);
                 }else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
                 }

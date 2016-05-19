@@ -45,7 +45,6 @@ public class TestFetchMovieData extends AndroidTestCase {
         // test all this twice
         for (int i=0; i <2; i++) {
 
-            Log.v(LOG_TAG, "In test loop:"+i);
             // does the ID point to our movie?
             Cursor favoriteCursor = getContext().getContentResolver().query(
                     MovieContract.MovieEntry.CONTENT_URI,
@@ -67,7 +66,6 @@ public class TestFetchMovieData extends AndroidTestCase {
 
             // these match the indices of the projection
             if (favoriteCursor.moveToFirst()) {
-                Log.v(LOG_TAG, "ID:"+favoriteCursor.getLong(0));
                 assertEquals("Error: the queried value of favoriteId does not match the returned" +
                 " value from markAsFavorite", favoriteCursor.getLong(0), favoriteId);
                 assertEquals("Error: the queried value of Title is incorrect",
@@ -76,7 +74,6 @@ public class TestFetchMovieData extends AndroidTestCase {
                         favoriteCursor.getString(2), testMovie.getOriginal_title());
                 assertEquals("Error: the queried value of Overview is incorrect",
                         favoriteCursor.getString(3), testMovie.getOverview());
-                Log.v(LOG_TAG, "Date:"+favoriteCursor.getString(4));
                 assertEquals("Error: the queried value of Release_Date is incorrect",
                         favoriteCursor.getString(4), testMovie.getRelease_date());
                 assertEquals("Error: the queried value of Poster_Path is incorrect",
@@ -94,7 +91,6 @@ public class TestFetchMovieData extends AndroidTestCase {
             assertFalse("Error: there should only be one record returned from a favorite query",
                     favoriteCursor.moveToNext());
             // add the favorite again
-            Log.v(LOG_TAG, "add the favorite again");
             long newFavoriteId = fmd.markAsFavorite(testMovie);
             assertEquals("Error: inserting a favorite again should return the same ID",
                     favoriteId, newFavoriteId);

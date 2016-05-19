@@ -69,11 +69,8 @@ class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
                     null
             );
 
-        Log.v(LOG_TAG,"favCursor is :"+favoriteCursor);
-
         if (favoriteCursor.moveToFirst()){
             int favMovieIdIndex = favoriteCursor.getColumnIndex(MovieContract.MovieEntry.MOVIE_ID);
-            Log.v(LOG_TAG, "cursor exists, index is:"+favMovieIdIndex);
             favMovieId = favoriteCursor.getLong(favMovieIdIndex);
         } else {
             // now ContentProvider is set up, inserting rows is pretty simple

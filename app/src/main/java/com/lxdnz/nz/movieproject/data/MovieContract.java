@@ -33,7 +33,6 @@ public class MovieContract {
 
         public static final String TABLE_NAME = "movies";
 
-
         // this is the foreign key to the other tables
         public static final String MOVIE_ID = "id";
         // general information for each id(movie)
@@ -51,7 +50,6 @@ public class MovieContract {
         // build movies Uri
         public static Uri buildMovieUri(long id) {
             Uri builtUri = ContentUris.withAppendedId(CONTENT_URI, id);
-            Log.v(LOG_TAG, "builtUri is :" + builtUri);
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
@@ -59,7 +57,6 @@ public class MovieContract {
         public static Uri buildMovieWithId(long movieId){
             String stringId = Long.toString(movieId);
             Uri builtUri = CONTENT_URI.buildUpon().appendPath(stringId).build();
-            Log.v(LOG_TAG, "Content Uri is: "+builtUri);
             return builtUri;
         }
 

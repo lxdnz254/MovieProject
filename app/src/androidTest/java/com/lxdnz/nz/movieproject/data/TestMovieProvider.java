@@ -2,10 +2,14 @@ package com.lxdnz.nz.movieproject.data;
 
 import android.content.ComponentName;
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.ContentValues;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.database.Cursor;
+import android.database.sqlite.SQLiteDatabase;
 import android.net.Uri;
+import android.os.Build;
 import android.test.AndroidTestCase;
 import android.util.Log;
 
@@ -130,5 +134,121 @@ public class TestMovieProvider extends AndroidTestCase{
         assertEquals("Error: the ReviewEntry CONTENT_URI should return ReviewEntry.CONTENT_TYPE",
                 ReviewEntry.CONTENT_TYPE, type);
     }
+
+    public void testBasicMovieQuery(){
+        movieQuery();
+    }
+
+    public void testBasicTrailerQuery() {
+        int movieId = movieQuery();
+        MovieDBHelper dbHelper = new MovieDBHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // we have movie now add trailer and test
+        ContentValues testTrailerValues = TestUtilities.createTrailerValues(movieId);
+        long trailerRowId = db.insert(TrailerEntry.TABLE_NAME, null, testTrailerValues);
+        assertTrue("Unable to insert TrailerEntry into the database", trailerRowId != -1);
+        db.close();
+
+        // now test the basic content provider query
+        Cursor trailerCursor = mContext.getContentResolver().query(
+                TrailerEntry.TRAILER_URI, null, null, null, null);
+        // make sure we get correct cursor out of the database
+        TestUtilities.validateCursor("testBasicTrailerQuery", trailerCursor, testTrailerValues);
+    }
+
+    public void testBasicReviewQuery() {
+        int movieId = movieQuery();
+        MovieDBHelper dbHelper = new MovieDBHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        // add review and test
+        ContentValues testReviewValues = TestUtilities.createReviewValues(movieId);
+        long reviewRowId = db.insert(ReviewEntry.TABLE_NAME, null, testReviewValues);
+        assertTrue("Unable to insert ReviewEntry into the database", reviewRowId != -1);
+        db.close();
+
+        // now test the basic content provider query
+        Cursor reviewCursor = mContext.getContentResolver().query(
+                ReviewEntry.REVIEW_URI, null, null, null, null);
+        // make sure we get correct cursor out of the database
+        TestUtilities.validateCursor("testBasicReviewQuery", reviewCursor, testReviewValues);
+    }
+
+    public int movieQuery(){
+        // insert our test records into the database
+        MovieDBHelper dbHelper = new MovieDBHelper(mContext);
+        SQLiteDatabase db = dbHelper.getWritableDatabase();
+
+        ContentValues testValues = TestUtilities.createMovieValues();
+        int movieRowId = TestUtilities.insertMovieValues(mContext);
+
+        // Now we have a movie, test the basic content query
+        Cursor movieCursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI,null,null,null,null);
+        // Make sure we get the correct cursor out of the database
+        TestUtilities.validateCursor("testBasicMovieQuery, movie query", movieCursor, testValues);
+        // Has the NotificationUri been set correctly? -- we can only test this easily against
+        // API level 19 or greater because getNotificationUri was added in API 19
+        if (Build.VERSION.SDK_INT >= 19) {
+            assertEquals("Error: Movie query did not properly set NotificationUri",
+                    movieCursor.getNotificationUri(), MovieEntry.CONTENT_URI);
+        }
+        db.close();
+        return movieRowId;
+    }
+
+    public void testUpdateMovie(){
+        // create a new map of values, where column names are the keys
+        ContentValues values = TestUtilities.createMovieValues();
+        Uri movieUri = mContext.getContentResolver().insert(
+                MovieEntry.CONTENT_URI, values);
+        long movieRowId = ContentUris.parseId(movieUri);
+        // verify we got a row back
+        assertTrue(movieRowId != -1);
+        Log.d(LOG_TAG, "new row id: "+ movieRowId);
+
+        ContentValues updateValues = new ContentValues(values);
+        updateValues.put(MovieEntry.MOVIE_ID, movieRowId);
+        updateValues.put(MovieEntry.MOVIE_TITLE, "Test Movie");
+
+        // create a cursor with observer to make sure that the content provider is notifying
+        // the observers as expected
+        Cursor movieCursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI, null, null, null, null);
+
+        TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
+        movieCursor.registerContentObserver(tco);
+
+        int count = mContext.getContentResolver().update(
+                MovieEntry.CONTENT_URI, updateValues, MovieEntry.MOVIE_ID + " = ?",
+                new String[] {Long.toString(movieRowId)});
+        assertEquals(count,1);
+
+        // Test to make sure our observer is called.  If not, we throw an assertion.
+        //
+        // If your code is failing here, it means that your content provider
+        // isn't calling getContext().getContentResolver().notifyChange(uri, null);
+        tco.waitForNotificationOrFail();
+
+        movieCursor.unregisterContentObserver(tco);
+        movieCursor.close();
+
+        // A cursor is your primary interface to the query results
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI,
+                null, //projection
+                MovieEntry.MOVIE_ID + " = " + movieRowId, //selection
+                null, // values for the "WHERE" clause
+                null  // sort order
+        );
+
+        TestUtilities.validateCursor("testUpdateMovie. Error validating Movie entry update",
+                cursor, updateValues);
+
+        cursor.close();
+    }
+
+
 
 }
