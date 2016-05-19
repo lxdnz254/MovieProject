@@ -119,7 +119,6 @@ public class TestMovieProvider extends AndroidTestCase{
         long testId = 135397;
         // content://com.lxdnz.nz.movieproject/movies/135397
         type = resolver.getType(MovieEntry.buildMovieUri(testId));
-        Log.v(LOG_TAG, "type is: "+type);
         // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/movies
         assertEquals("Error: the MovieEntry CONTENT_URI with ID should return MovieEntry.CONTENT_TYPE",
                  MovieEntry.CONTENT_TYPE, type);
@@ -129,10 +128,23 @@ public class TestMovieProvider extends AndroidTestCase{
         // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/trailers
         assertEquals("Error: the TrailerEntry CONTENT_URI should return TrailerEnrty.CONTENT_TYPE",
                 TrailerEntry.CONTENT_TYPE, type);
+        long testTrailerId = 0;
+        // content://com.lxdnz.nz.movieproject/trailers/0
+        type = resolver.getType(TrailerEntry.buildTrailersUri(testTrailerId));
+        // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/trailers
+        assertEquals("Error: the TrailerEntry CONTENT_URI with ID should return TrailerEntry.CONTENT_TYPE",
+                TrailerEntry.CONTENT_TYPE, type);
+
         // content://com.lxdnz.nz.movieproject/reviews/
         type = resolver.getType(ReviewEntry.REVIEW_URI);
         assertEquals("Error: the ReviewEntry CONTENT_URI should return ReviewEntry.CONTENT_TYPE",
                 ReviewEntry.CONTENT_TYPE, type);
+        long testReviewId = 0;
+        // content://com.lxdnz.nz.movieproject/reviews/0
+        type = resolver.getType(TrailerEntry.buildTrailersUri(testReviewId));
+        // vnd.android.cursor.dir/com.lxdnz.nz.movieproject/reviews
+        assertEquals("Error: the ReviewEntry CONTENT_URI with ID should return ReviewEntry.CONTENT_TYPE",
+                TrailerEntry.CONTENT_TYPE, type);
     }
 
     public void testBasicMovieQuery(){
@@ -249,6 +261,92 @@ public class TestMovieProvider extends AndroidTestCase{
         cursor.close();
     }
 
+    // make sure we can insert into the other tables on a Movie update.
+    public void testInsertReadProvider() {
+        ContentValues testValues = TestUtilities.createMovieValues();
 
+        // Register a content observer for our insert. This time directly with the Content Resolver
+        TestUtilities.TestContentObserver tco = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieEntry.CONTENT_URI, true, tco);
+        Uri movieUri = mContext.getContentResolver().insert(MovieEntry.CONTENT_URI, testValues);
+
+        // Did our content observer get called? If this fails, your insert Movie isn't calling
+        // mContext.getContentResolver().notifyChange(uri, null)
+        tco.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(tco);
+
+        long movieRowId = ContentUris.parseId(movieUri);
+        // Verify we get a row back
+        assertTrue(movieRowId != -1);
+        // Data's inserted.  IN THEORY.  Now pull some out to stare at it and verify it made
+        // the round trip.
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI,
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null  // sort order
+        );
+
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating MovieEntry.",
+                cursor, testValues);
+        // Great, now we have a movie Entry add a trailer, test, then add a review and test
+        // parse movieRowId to int
+        int movieId = (int)movieRowId;
+        ContentValues trailerValues = TestUtilities.createTrailerValues(movieId);
+        // the TestContentObserver is a one-shot class
+        tco = TestUtilities.getTestContentObserver();
+
+        mContext.getContentResolver().registerContentObserver(TrailerEntry.TRAILER_URI, true, tco);
+
+        Uri trailerInsertUri = mContext.getContentResolver()
+                .insert(TrailerEntry.TRAILER_URI, trailerValues);
+        assertTrue(trailerInsertUri != null);
+        // Did our content observer get called? If this fails, your insert Trailer in
+        // your content provider isn't calling
+        // mContext.getContentResolver().notifyChange(uri, null)
+        tco.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(tco);
+        // get trailerCursor and validate
+        Cursor trailerCursor = mContext.getContentResolver().query(
+                TrailerEntry.TRAILER_URI, null, null, null, null);
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating TrailerEntry.",
+                trailerCursor, trailerValues);
+
+        // Validate the ReviewEntry
+        ContentValues reviewValues = TestUtilities.createReviewValues(movieId);
+        // the TestContentObserver is a one-shot class
+        tco = TestUtilities.getTestContentObserver();
+
+        mContext.getContentResolver().registerContentObserver(ReviewEntry.REVIEW_URI, true, tco);
+
+        Uri reviewInsertUri = mContext.getContentResolver()
+                .insert(ReviewEntry.REVIEW_URI, reviewValues);
+        assertTrue(reviewInsertUri != null);
+        // Did our content observer get called? If this fails, your insert Review in
+        // your content provider isn't calling
+        // mContext.getContentResolver().notifyChange(uri, null)
+        tco.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(tco);
+        // get reviewCursor and validate
+        Cursor reviewCursor = mContext.getContentResolver().query(
+                ReviewEntry.REVIEW_URI, null, null, null, null);
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating ReviewEntry.",
+                reviewCursor, reviewValues);
+
+        // do same cursor check with MovieEntry.buildUri and MovieEntry.buildWithId
+        Cursor buildMovieCursor = mContext.getContentResolver().query(
+                MovieEntry.buildMovieUri(TestUtilities.TEST_ID), null, null, null, null);
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating MovieEntry.buildMovieUri.",
+                buildMovieCursor, testValues);
+        Cursor buildMovieIdCursor = mContext.getContentResolver().query(
+                MovieEntry.buildMovieWithId(TestUtilities.TEST_ID), null, null, null, null);
+        TestUtilities.validateCursor("testInsertReadProvider. Error validating MovieEntry.buildMovieWithId.",
+                buildMovieIdCursor, testValues);
+
+
+    }
 
 }

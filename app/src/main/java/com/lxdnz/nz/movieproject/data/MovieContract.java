@@ -7,6 +7,7 @@ import android.provider.BaseColumns;
 import android.text.format.Time;
 import android.util.Log;
 
+
 /**
  * Created by alex on 14/05/16.
  */
@@ -17,8 +18,8 @@ public class MovieContract {
     public static final String CONTENT_AUTHORITY = "com.lxdnz.nz.movieproject";
     public static final Uri BASE_CONTENT_URI = Uri.parse("content://" + CONTENT_AUTHORITY);
     public static final String PATH_MOVIES = "movies";
-    public static final String PATH_TRAILERS = "trailers";
-    public static final String PATH_REVIEWS = "reviews";
+    public static final String PATH_TRAILERS = "#/trailers";
+    public static final String PATH_REVIEWS = "#/reviews";
 
     /**
      * Inner class that defines the favorite movie entries
@@ -49,7 +50,6 @@ public class MovieContract {
 
         // build movies Uri
         public static Uri buildMovieUri(long id) {
-            Uri builtUri = ContentUris.withAppendedId(CONTENT_URI, id);
             return ContentUris.withAppendedId(CONTENT_URI, id);
         }
 
@@ -91,11 +91,15 @@ public class MovieContract {
      */
     public static final class TrailerEntry implements BaseColumns {
 
+        public static final String LOG_TAG = TrailerEntry.class.getSimpleName();
+
         public static final Uri TRAILER_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_TRAILERS).build();
+                MovieEntry.CONTENT_URI.buildUpon().appendPath(PATH_TRAILERS).build();
+
 
         public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_TRAILERS;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/"
+                        + PATH_MOVIES + "/#/" + PATH_TRAILERS;
 
         public static final String TABLE_NAME = "trailers";
 
@@ -107,6 +111,7 @@ public class MovieContract {
 
         // build Trailers Uri
         public static Uri buildTrailersUri(long id) {
+
             return ContentUris.withAppendedId(TRAILER_URI, id);
         }
 
@@ -133,10 +138,11 @@ public class MovieContract {
     public static final class ReviewEntry implements BaseColumns {
 
         public static final Uri REVIEW_URI =
-                BASE_CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
+                MovieEntry.CONTENT_URI.buildUpon().appendPath(PATH_REVIEWS).build();
 
         public static final String CONTENT_TYPE =
-                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/" + PATH_REVIEWS;
+                ContentResolver.CURSOR_DIR_BASE_TYPE + "/" + CONTENT_AUTHORITY + "/"
+                        + PATH_MOVIES + "/#/" + PATH_REVIEWS;
 
         public static final String TABLE_NAME = "reviews";
 

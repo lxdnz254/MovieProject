@@ -27,7 +27,9 @@ public class MovieProvider extends ContentProvider{
     static final int MOVIE = 100;
     static final int MOVIE_WITH_ID = 101;
     static final int TRAILER = 200;
+    static final int TRAILER_WITH_ID = 201;
     static final int REVIEW = 300;
+    static final int REVIEW_WITH_ID = 301;
 
     static UriMatcher buildUriMatcher() {
         // 1) The code passed into the constructor represents the code to return for the root
@@ -37,9 +39,13 @@ public class MovieProvider extends ContentProvider{
         // 2) Use the addURI function to match each of the types.  Use the constants from
         // MovieContract to help define the types to the UriMatcher.
         matcher.addURI(authority, MovieContract.PATH_MOVIES, MOVIE);
-        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/*", MOVIE_WITH_ID);
-        matcher.addURI(authority, MovieContract.PATH_TRAILERS, TRAILER);
-        matcher.addURI(authority, MovieContract.PATH_REVIEWS, REVIEW);
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/#", MOVIE_WITH_ID);
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/#/" + MovieContract.PATH_TRAILERS, TRAILER);
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/#/" +
+                MovieContract.PATH_TRAILERS + "/#", TRAILER_WITH_ID);
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/#/" + MovieContract.PATH_REVIEWS, REVIEW);
+        matcher.addURI(authority, MovieContract.PATH_MOVIES + "/#/" +
+                MovieContract.PATH_REVIEWS + "/#", REVIEW_WITH_ID);
 
         sMovieProjectionMap = new HashMap<>();
         sMovieProjectionMap.put(MovieContract.MovieEntry.MOVIE_ID, "movies.id as _id");
@@ -65,8 +71,10 @@ public class MovieProvider extends ContentProvider{
             case MOVIE_WITH_ID:
                 return MovieContract.MovieEntry.CONTENT_TYPE;
             case TRAILER:
+            case TRAILER_WITH_ID:
                 return MovieContract.TrailerEntry.CONTENT_TYPE;
             case REVIEW:
+            case REVIEW_WITH_ID:
                 return MovieContract.ReviewEntry.CONTENT_TYPE;
             default:
                 throw new UnsupportedOperationException("Unknown uri: " + uri);
@@ -81,6 +89,18 @@ public class MovieProvider extends ContentProvider{
         Cursor retCursor;
         switch (sUriMatcher.match(uri)) {
             case MOVIE: {
+                retCursor = mOpenHelper.getReadableDatabase().query(
+                        MovieContract.MovieEntry.TABLE_NAME,
+                        projection,
+                        selection,
+                        selectionArgs,
+                        null,
+                        null,
+                        sortOrder
+                );
+                break;
+            }
+            case MOVIE_WITH_ID: {
                 retCursor = mOpenHelper.getReadableDatabase().query(
                         MovieContract.MovieEntry.TABLE_NAME,
                         projection,
@@ -142,7 +162,8 @@ public class MovieProvider extends ContentProvider{
             }
             case TRAILER: {
                 long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, values);
-                if (_id > 0) {
+                Log.v(LOG_TAG, "Trailer._id is: "+ _id);
+                if (_id >= 0) {
                     returnUri = MovieContract.TrailerEntry.buildTrailersUri(_id);
                 }else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
@@ -151,7 +172,8 @@ public class MovieProvider extends ContentProvider{
             }
             case REVIEW: {
                 long _id = db.insert(MovieContract.ReviewEntry.TABLE_NAME, null, values);
-                if (_id > 0) {
+                Log.v(LOG_TAG, "Review._id is: " + _id);
+                if (_id >= 0) {
                     returnUri = MovieContract.ReviewEntry.buildReviewUri(_id);
                 }else {
                     throw new android.database.SQLException("Failed to insert row into " + uri);
