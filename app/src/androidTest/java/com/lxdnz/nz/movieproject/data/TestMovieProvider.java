@@ -360,6 +360,155 @@ public class TestMovieProvider extends AndroidTestCase{
                 buildReviewCursor, reviewValues);
     }
 
+    // Test we can still delete after doing inserts/updates.
+    public void testDeleteRecords() {
+        testInsertReadProvider();
 
+        //register ContentObservers for our table deletes
+        TestUtilities.TestContentObserver movieObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieEntry.CONTENT_URI, true, movieObserver);
+        TestUtilities.TestContentObserver trailerObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(TrailerEntry.TRAILER_URI, true, trailerObserver);
+        TestUtilities.TestContentObserver reviewObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(ReviewEntry.REVIEW_URI, true, reviewObserver);
+
+        deleteAllRecordsFromProvider();
+
+        // if any of these fail, you are most likely not calling the
+        // getContext().getContentResolver().notifyChange(uri, null); in the ContentProvider
+        // delete. (only if the insertReadProvider is succeeding)
+        reviewObserver.waitForNotificationOrFail();
+        trailerObserver.waitForNotificationOrFail();
+        movieObserver.waitForNotificationOrFail();
+
+        mContext.getContentResolver().unregisterContentObserver(reviewObserver);
+        mContext.getContentResolver().unregisterContentObserver(trailerObserver);
+        mContext.getContentResolver().unregisterContentObserver(movieObserver);
+    }
+
+    // Create some bulk values to test.
+    static private final int BULK_RECORDS_TO_INSERT = 5;
+
+    static ContentValues[] createBulkTrailerValuesInsert(long movieId) {
+        String TEST_ID = "54749bea9251414f41001b58";
+        String TEST_KEY = "bvu-zlR5A8Q";
+        String TEST_NAME = "Teaser";
+        int[] TEST_SIZE = {320, 540, 720, 1080, 2160};
+
+        ContentValues[] returnContentValues = new ContentValues[BULK_RECORDS_TO_INSERT];
+
+        for (int i=0; i < BULK_RECORDS_TO_INSERT; i++){
+            ContentValues trailerValues = new ContentValues();
+            trailerValues.put(TrailerEntry.TRAILER_MOVIE_ID, movieId);
+            trailerValues.put(TrailerEntry.TRAILER_ID, TEST_ID);
+            trailerValues.put(TrailerEntry.TRAILER_KEY, TEST_KEY);
+            trailerValues.put(TrailerEntry.TRAILER_NAME, TEST_NAME);
+            trailerValues.put(TrailerEntry.TRAILER_SIZE, TEST_SIZE[i]);
+            returnContentValues[i] = trailerValues;
+        }
+        return returnContentValues;
+    }
+
+    static ContentValues[] createBulkReviewValuesInsert(long movieId) {
+        String TEST_ID = "55910381c3a36807f900065d";
+        String TEST_CONTENT = "I was a huge fan of the original ";
+        String TEST_AUTHOR = "jonlikesmoviesthatdontsuck";
+        String TEST_URL = "https://www.themoviedb.org/review/55910381c3a36807f900065d";
+
+        ContentValues[] returnContentValues = new ContentValues[BULK_RECORDS_TO_INSERT];
+
+        for (int i=0; i < BULK_RECORDS_TO_INSERT; i++) {
+            ContentValues reviewValues = new ContentValues();
+            reviewValues.put(ReviewEntry.REVIEW_MOVIE_ID, movieId);
+            reviewValues.put(ReviewEntry.REVIEW_ID,TEST_ID);
+            reviewValues.put(ReviewEntry.REVIEW_CONTENT,TEST_CONTENT + i + " movies.");
+            reviewValues.put(ReviewEntry.REVIEW_AUTHOR,TEST_AUTHOR);
+            reviewValues.put(ReviewEntry.REVIEW_URL,TEST_URL);
+            returnContentValues[i] = reviewValues;
+        }
+
+        return returnContentValues;
+    }
+
+    // Create the bulkInsert Test
+    public void testBulkInsert() {
+        // first create a movie value
+        ContentValues testValues = TestUtilities.createMovieValues();
+        Uri movieUri = mContext.getContentResolver().insert(MovieEntry.CONTENT_URI, testValues);
+        long movieId = ContentUris.parseId(movieUri);
+        // Verify we got a row back
+        assertTrue(movieId != -1);
+
+        // Data's inserted.  IN THEORY.  Now pull some out to stare at it and verify it made
+        // the round trip.
+
+        // A cursor is your primary interface to the query results.
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI,
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                null  // sort order
+        );
+
+        TestUtilities.validateCursor("testBulkInsert. Error validating MovieEntry.",
+                cursor, testValues);
+
+        // now we can insert some bulk trailers .. with Content Providers you only need to
+        // implement the features you use, so no need to bulk insert Movies as they'll be actioned
+        // to the database one at a time.
+        ContentValues[] bulkInsertTrailerValues = createBulkTrailerValuesInsert(movieId);
+
+        // Register a content Observer for the bulk insert
+        TestUtilities.TestContentObserver trailerObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(TrailerEntry.TRAILER_URI, true, trailerObserver);
+
+        int insertCount = mContext.getContentResolver().bulkInsert(TrailerEntry.TRAILER_URI, bulkInsertTrailerValues);
+        Log.v(LOG_TAG, "insert count is: "+insertCount);
+        // If this fails, it means that you most-likely are not calling the
+        // getContext().getContentResolver().notifyChange(uri, null); in your BulkInsert
+        // ContentProvider method.
+        trailerObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(trailerObserver);
+
+        assertEquals(insertCount, BULK_RECORDS_TO_INSERT);
+
+        // A cursor is your primary interface to the query results.
+        Cursor trailerCursor = mContext.getContentResolver().query(
+                TrailerEntry.TRAILER_URI,
+                null, // leaving "columns" null just returns all the columns.
+                null, // cols for "where" clause
+                null, // values for "where" clause
+                TrailerEntry.TRAILER_SIZE + " ASC"  // sort order == by SIZE ASCENDING
+        );
+
+        // we should have as many records in the database as we've inserted
+        assertEquals(getTotalRows(), BULK_RECORDS_TO_INSERT);
+
+        // and let's make sure they match the ones we created
+        trailerCursor.moveToFirst();
+        for ( int i = 0; i < BULK_RECORDS_TO_INSERT; i++, trailerCursor.moveToNext() ) {
+            TestUtilities.validateCurrentRecord("testBulkInsert.  Error validating TrailerEntry " + i,
+                    trailerCursor, bulkInsertTrailerValues[i]);
+        }
+        trailerCursor.close();
+
+    }
+
+    public int getTotalRows() {
+
+        String countQuery = "SELECT  * FROM " + TrailerEntry.TRAILER_URI;
+        SQLiteDatabase db = new MovieDBHelper(mContext).getReadableDatabase();
+        int count = 0;
+
+        Cursor cursor = db.rawQuery(countQuery, null);
+
+        if (cursor != null) {
+            count = cursor.getCount();
+            cursor.close();
+        }
+
+        return count;
+    }
 
 }
