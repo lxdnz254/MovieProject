@@ -282,7 +282,6 @@ public class MovieProvider extends ContentProvider{
                 try {
                     for (ContentValues value: values) {
                         long _id = db.insert(MovieContract.TrailerEntry.TABLE_NAME, null, value);
-                        Log.v(LOG_TAG, "Trailer Entry._id :" + _id);
                         if (_id != -1) {
                             returnCount++;
                         }
@@ -292,7 +291,6 @@ public class MovieProvider extends ContentProvider{
                     db.endTransaction();
                 }
                 getContext().getContentResolver().notifyChange(uri, null);
-                Log.v(LOG_TAG, "the return Count is: "+returnCount);
                 return returnCount;
             }
             case REVIEW: {

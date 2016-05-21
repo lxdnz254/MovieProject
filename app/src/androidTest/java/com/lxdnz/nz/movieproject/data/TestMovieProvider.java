@@ -400,7 +400,7 @@ public class TestMovieProvider extends AndroidTestCase{
         for (int i=0; i < BULK_RECORDS_TO_INSERT; i++){
             ContentValues trailerValues = new ContentValues();
             trailerValues.put(TrailerEntry.TRAILER_MOVIE_ID, movieId);
-            trailerValues.put(TrailerEntry.TRAILER_ID, TEST_ID);
+            trailerValues.put(TrailerEntry.TRAILER_ID, TEST_ID+"//"+i);
             trailerValues.put(TrailerEntry.TRAILER_KEY, TEST_KEY);
             trailerValues.put(TrailerEntry.TRAILER_NAME, TEST_NAME);
             trailerValues.put(TrailerEntry.TRAILER_SIZE, TEST_SIZE[i]);
@@ -420,7 +420,7 @@ public class TestMovieProvider extends AndroidTestCase{
         for (int i=0; i < BULK_RECORDS_TO_INSERT; i++) {
             ContentValues reviewValues = new ContentValues();
             reviewValues.put(ReviewEntry.REVIEW_MOVIE_ID, movieId);
-            reviewValues.put(ReviewEntry.REVIEW_ID,TEST_ID);
+            reviewValues.put(ReviewEntry.REVIEW_ID,TEST_ID+"//"+i);
             reviewValues.put(ReviewEntry.REVIEW_CONTENT,TEST_CONTENT + i + " movies.");
             reviewValues.put(ReviewEntry.REVIEW_AUTHOR,TEST_AUTHOR);
             reviewValues.put(ReviewEntry.REVIEW_URL,TEST_URL);
@@ -453,7 +453,7 @@ public class TestMovieProvider extends AndroidTestCase{
 
         TestUtilities.validateCursor("testBulkInsert. Error validating MovieEntry.",
                 cursor, testValues);
-
+        cursor.close();
         // now we can insert some bulk trailers .. with Content Providers you only need to
         // implement the features you use, so no need to bulk insert Movies as they'll be actioned
         // to the database one at a time.
@@ -464,7 +464,7 @@ public class TestMovieProvider extends AndroidTestCase{
         mContext.getContentResolver().registerContentObserver(TrailerEntry.TRAILER_URI, true, trailerObserver);
 
         int insertCount = mContext.getContentResolver().bulkInsert(TrailerEntry.TRAILER_URI, bulkInsertTrailerValues);
-        Log.v(LOG_TAG, "insert count is: "+insertCount);
+
         // If this fails, it means that you most-likely are not calling the
         // getContext().getContentResolver().notifyChange(uri, null); in your BulkInsert
         // ContentProvider method.
@@ -483,7 +483,7 @@ public class TestMovieProvider extends AndroidTestCase{
         );
 
         // we should have as many records in the database as we've inserted
-        assertEquals(getTotalRows(), BULK_RECORDS_TO_INSERT);
+        assertEquals(trailerCursor.getCount(), BULK_RECORDS_TO_INSERT);
 
         // and let's make sure they match the ones we created
         trailerCursor.moveToFirst();
@@ -493,22 +493,36 @@ public class TestMovieProvider extends AndroidTestCase{
         }
         trailerCursor.close();
 
-    }
+        // Now test the Revie BulkInsert
+        ContentValues[] bulkInsertReviewValues = createBulkReviewValuesInsert(movieId);
 
-    public int getTotalRows() {
+        // Register the content observer
+        TestUtilities.TestContentObserver reviewObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(ReviewEntry.REVIEW_URI, true, reviewObserver);
 
-        String countQuery = "SELECT  * FROM " + TrailerEntry.TRAILER_URI;
-        SQLiteDatabase db = new MovieDBHelper(mContext).getReadableDatabase();
-        int count = 0;
+        insertCount = mContext.getContentResolver().bulkInsert(ReviewEntry.REVIEW_URI, bulkInsertReviewValues);
+        // check for failure.
+        reviewObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(reviewObserver);
+        assertEquals(insertCount, BULK_RECORDS_TO_INSERT);
 
-        Cursor cursor = db.rawQuery(countQuery, null);
-
-        if (cursor != null) {
-            count = cursor.getCount();
-            cursor.close();
+        Cursor reviewCursor = mContext.getContentResolver().query(
+                ReviewEntry.REVIEW_URI,
+                null,
+                null,
+                null,
+                null
+        );
+        // we should have as many records in the databes as we've inserted.
+        assertEquals(reviewCursor.getCount(), BULK_RECORDS_TO_INSERT);
+        // and make sure they match the ones we created
+        reviewCursor.moveToFirst();
+        for (int i = 0; i < BULK_RECORDS_TO_INSERT; i++, reviewCursor.moveToNext()) {
+            TestUtilities.validateCurrentRecord("testBulkInsert. Error validating ReviewEntry " + i,
+                    reviewCursor, bulkInsertReviewValues[i]);
         }
+        reviewCursor.close();
 
-        return count;
     }
 
 }
