@@ -493,7 +493,7 @@ public class TestMovieProvider extends AndroidTestCase{
         }
         trailerCursor.close();
 
-        // Now test the Revie BulkInsert
+        // Now test the Review BulkInsert
         ContentValues[] bulkInsertReviewValues = createBulkReviewValuesInsert(movieId);
 
         // Register the content observer
@@ -522,6 +522,138 @@ public class TestMovieProvider extends AndroidTestCase{
                     reviewCursor, bulkInsertReviewValues[i]);
         }
         reviewCursor.close();
+
+    }
+
+    public void testOverwriteBulkInsert() {
+        // First run the testBulkInsert() test.. if written correctly this will pass
+        testBulkInsert();
+        // Get the movie Id from the insert
+        long movieId = 0;
+        long trailerId = 0;
+        long newTrailerId = 0;
+        long reviewId = 0;
+        long newReviewId = 0;
+        int insertCount;
+        Cursor cursor = mContext.getContentResolver().query(
+                MovieEntry.CONTENT_URI,
+                new String[] {MovieEntry.MOVIE_ID},
+                null,
+                null,
+                null
+        );
+        if (cursor != null) {
+            cursor.moveToFirst();
+            movieId = cursor.getLong(0);
+        }else{
+            assertNull("testOverwriteBulkInsert: Error cursor returned null", cursor);
+        }
+        cursor.close();
+        // get last  trailer ids
+        Cursor trailerCursor = mContext.getContentResolver().query(
+                TrailerEntry.TRAILER_URI,
+                new String[] {TrailerEntry._ID},
+                null,
+                null,
+                null
+        );
+        if (trailerCursor != null) {
+            trailerCursor.moveToLast();
+            trailerId = trailerCursor.getLong(0);
+        }else{
+            assertNull("testOverwriteBulkInsert: Error trailerCursor returned null", trailerCursor);
+        }
+        trailerCursor.close();
+
+        // Now add the data again, it should overwrite the data and end with same number of records
+        // but ids increased
+        ContentValues[] bulkInsertTrailerValues = createBulkTrailerValuesInsert(movieId);
+
+        // Register a content Observer for the bulk insert
+        TestUtilities.TestContentObserver trailerObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(TrailerEntry.TRAILER_URI, true, trailerObserver);
+
+        insertCount = mContext.getContentResolver().bulkInsert(TrailerEntry.TRAILER_URI, bulkInsertTrailerValues);
+
+        // If this fails, it means that you most-likely are not calling the
+        // getContext().getContentResolver().notifyChange(uri, null); in your BulkInsert
+        // ContentProvider method.
+        trailerObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(trailerObserver);
+
+        assertEquals(insertCount, BULK_RECORDS_TO_INSERT);
+
+        // get new last trailer inputs
+        Cursor newTrailerCursor = mContext.getContentResolver().query(
+                TrailerEntry.TRAILER_URI,
+                new String[] {TrailerEntry._ID},
+                null,
+                null,
+                null
+        );
+        if (newTrailerCursor != null) {
+            // test only new records exist
+            assertEquals(newTrailerCursor.getCount(), BULK_RECORDS_TO_INSERT);
+            // get the new last _id
+            newTrailerCursor.moveToLast();
+            newTrailerId = newTrailerCursor.getLong(0);
+        }else{
+            assertNull("testOverwriteBulkInsert: Error newTrailerCursor returned null", newTrailerCursor);
+        }
+        newTrailerCursor.close();
+        // check the autoincrement has worked.
+        assertEquals(newTrailerId, trailerId + BULK_RECORDS_TO_INSERT);
+
+        // Now test the Review BulkInsert
+
+        // get the review id first
+        Cursor reviewCursor = mContext.getContentResolver().query(
+                ReviewEntry.REVIEW_URI,
+                new String[] {ReviewEntry._ID},
+                null,
+                null,
+                null
+        );
+        if (reviewCursor != null) {
+            reviewCursor.moveToLast();
+            reviewId = reviewCursor.getLong(0);
+        }else{
+            assertNull("testOverwriteBulkInsert: Error reviewCursor returned null", reviewCursor);
+        }
+        reviewCursor.close();
+
+        // insert review data again
+        ContentValues[] bulkInsertReviewValues = createBulkReviewValuesInsert(movieId);
+
+        // Register the content observer
+        TestUtilities.TestContentObserver reviewObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(ReviewEntry.REVIEW_URI, true, reviewObserver);
+
+        insertCount = mContext.getContentResolver().bulkInsert(ReviewEntry.REVIEW_URI, bulkInsertReviewValues);
+        // check for failure.
+        reviewObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(reviewObserver);
+        assertEquals(insertCount, BULK_RECORDS_TO_INSERT);
+        // get new review ids
+        Cursor newReviewCursor = mContext.getContentResolver().query(
+                ReviewEntry.REVIEW_URI,
+                new String[] {ReviewEntry._ID},
+                null,
+                null,
+                null
+        );
+        if (newReviewCursor != null) {
+            // test only the new review records exist
+            assertEquals(newReviewCursor.getCount(), BULK_RECORDS_TO_INSERT);
+            // now get the last new _id
+            newReviewCursor.moveToLast();
+            newReviewId = newReviewCursor.getLong(0);
+        }else{
+            assertNull("testOverwriteBulkInsert: Error newReviewCursor returned null", newReviewCursor);
+        }
+        newReviewCursor.close();
+        // check the autoincrement has worked
+        assertEquals(newReviewId, reviewId+BULK_RECORDS_TO_INSERT);
 
     }
 
