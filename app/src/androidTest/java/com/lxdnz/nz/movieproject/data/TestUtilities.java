@@ -111,7 +111,7 @@ public class TestUtilities extends AndroidTestCase{
 
         // get the Movie_ID entry
         int movieId;
-        movieId = cursor.getInt(1);
+        movieId = cursor.getInt(0);
 
         // move the cursor to demonstrate there's only one record in the database
         assertFalse("Error: More than one record returned from Movie query", cursor.moveToNext() );
