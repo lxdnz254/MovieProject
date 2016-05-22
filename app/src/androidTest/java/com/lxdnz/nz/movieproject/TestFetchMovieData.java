@@ -1,12 +1,12 @@
 package com.lxdnz.nz.movieproject;
 
 import android.annotation.TargetApi;
-import android.content.Context;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
-import android.util.Log;
 
+import com.lxdnz.nz.movieproject.async.FetchMovieData;
 import com.lxdnz.nz.movieproject.data.MovieContract;
+import com.lxdnz.nz.movieproject.objects.Movie;
 
 /**
  * Created by alex on 18/05/16.

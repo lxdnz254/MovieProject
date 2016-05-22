@@ -12,6 +12,10 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.lxdnz.nz.movieproject.adapters.ImageAdapter;
+import com.lxdnz.nz.movieproject.async.FetchMovieData;
+import com.lxdnz.nz.movieproject.objects.Movie;
+
 
 public class MovieGridFragment extends Fragment {
 

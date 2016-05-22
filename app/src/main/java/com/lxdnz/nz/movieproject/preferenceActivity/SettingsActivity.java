@@ -1,4 +1,4 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.preferenceActivity;
 
 
 import android.content.Context;
@@ -11,6 +11,8 @@ import android.preference.PreferenceManager;
 import android.support.v4.app.NavUtils;
 import android.support.v7.app.ActionBar;
 import android.view.MenuItem;
+
+import com.lxdnz.nz.movieproject.R;
 
 /**
  * A {@link PreferenceActivity} that presents a set of application settings.

@@ -1,4 +1,4 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.async;
 
 import android.content.ContentUris;
 import android.content.ContentValues;
@@ -7,8 +7,12 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
-import android.widget.GridView;
 
+import com.lxdnz.nz.movieproject.BuildConfig;
+import com.lxdnz.nz.movieproject.adapters.ImageAdapter;
+import com.lxdnz.nz.movieproject.objects.Movie;
+import com.lxdnz.nz.movieproject.MovieGridFragment;
+import com.lxdnz.nz.movieproject.R;
 import com.lxdnz.nz.movieproject.data.MovieContract;
 
 import org.json.JSONArray;
@@ -22,12 +26,11 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.Arrays;
-import java.util.List;
 
 /**
  * Created by alex on 18/05/16.
  */
-class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
+public class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
 
     private MovieGridFragment movieGridFragment;
     public Context mContext;
@@ -55,7 +58,7 @@ class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
      * @param favMovie the Movie Object being inserted
      * @return the row ID of the favorite Movie
      */
-    long markAsFavorite(Movie favMovie){
+    public long markAsFavorite(Movie favMovie){
         long favMovieId;
         String stringId = Integer.toString(favMovie.getId());
 

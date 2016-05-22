@@ -1,4 +1,4 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.lxdnz.nz.movieproject.objects.Movie;
+import com.lxdnz.nz.movieproject.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
