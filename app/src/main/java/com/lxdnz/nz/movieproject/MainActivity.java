@@ -9,7 +9,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.lxdnz.nz.movieproject.preferenceActivity.SettingsActivity;
+import com.lxdnz.nz.movieproject.preferenceactivity.SettingsActivity;
 
 public class MainActivity extends AppCompatActivity {
 

@@ -17,7 +17,7 @@ import android.widget.RatingBar;
 import android.widget.TextView;
 
 import com.lxdnz.nz.movieproject.objects.Movie;
-import com.lxdnz.nz.movieproject.preferenceActivity.SettingsActivity;
+import com.lxdnz.nz.movieproject.preferenceactivity.SettingsActivity;
 import com.squareup.picasso.Picasso;
 
 public class MovieDetailActivity extends AppCompatActivity {
