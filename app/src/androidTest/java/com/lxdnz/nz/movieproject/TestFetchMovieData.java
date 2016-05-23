@@ -7,6 +7,7 @@ import android.test.AndroidTestCase;
 import com.lxdnz.nz.movieproject.async.FetchMovieData;
 import com.lxdnz.nz.movieproject.data.MovieContract;
 import com.lxdnz.nz.movieproject.objects.Movie;
+import com.lxdnz.nz.movieproject.utils.Utilities;
 
 /**
  * Created by alex on 18/05/16.
@@ -27,8 +28,6 @@ public class TestFetchMovieData extends AndroidTestCase {
 
     private static final String LOG_TAG = TestFetchMovieData.class.getSimpleName();
 
-    static final MovieGridFragment movieGridFragment = new MovieGridFragment();
-
 
     @TargetApi(11)
     public void testMarkFavorite() {
@@ -37,8 +36,8 @@ public class TestFetchMovieData extends AndroidTestCase {
                 MovieContract.MovieEntry.MOVIE_ID + " = ?",
                 new String[]{TEST_ID});
 
-        FetchMovieData fmd = new FetchMovieData(movieGridFragment, mContext);
-        long favoriteId = fmd.markAsFavorite(testMovie);
+        long favoriteId = new Utilities(mContext).markAsFavorite(testMovie);
+
         // does markAsFavorite return a valid record ID?
         assertFalse("Error: markAsFavorite returned an invalid ID on insert",
                 favoriteId == -1);
@@ -91,7 +90,7 @@ public class TestFetchMovieData extends AndroidTestCase {
             assertFalse("Error: there should only be one record returned from a favorite query",
                     favoriteCursor.moveToNext());
             // add the favorite again
-            long newFavoriteId = fmd.markAsFavorite(testMovie);
+            long newFavoriteId = new Utilities(mContext).markAsFavorite(testMovie);
             assertEquals("Error: inserting a favorite again should return the same ID",
                     favoriteId, newFavoriteId);
         }
