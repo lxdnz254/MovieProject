@@ -179,6 +179,47 @@ public class TestUtilities extends AndroidTestCase{
         return reviewRowId;
     }
 
+    public static ContentValues[] createBulkTrailerValuesInsert(long movieId) {
+        String TEST_ID = "54749bea9251414f41001b58";
+        String TEST_KEY = "bvu-zlR5A8Q";
+        String TEST_NAME = "Teaser";
+        int[] TEST_SIZE = {320, 540, 720, 1080, 2160};
+
+        ContentValues[] returnContentValues = new ContentValues[TestMovieProvider.BULK_RECORDS_TO_INSERT];
+
+        for (int i = 0; i < TestMovieProvider.BULK_RECORDS_TO_INSERT; i++){
+            ContentValues trailerValues = new ContentValues();
+            trailerValues.put(MovieContract.TrailerEntry.TRAILER_MOVIE_ID, movieId);
+            trailerValues.put(MovieContract.TrailerEntry.TRAILER_ID, TEST_ID+"//"+i);
+            trailerValues.put(MovieContract.TrailerEntry.TRAILER_KEY, TEST_KEY);
+            trailerValues.put(MovieContract.TrailerEntry.TRAILER_NAME, TEST_NAME);
+            trailerValues.put(MovieContract.TrailerEntry.TRAILER_SIZE, TEST_SIZE[i]);
+            returnContentValues[i] = trailerValues;
+        }
+        return returnContentValues;
+    }
+
+    public static ContentValues[] createBulkReviewValuesInsert(long movieId) {
+        String TEST_ID = "55910381c3a36807f900065d";
+        String TEST_CONTENT = "I was a huge fan of the original ";
+        String TEST_AUTHOR = "jonlikesmoviesthatdontsuck";
+        String TEST_URL = "https://www.themoviedb.org/review/55910381c3a36807f900065d";
+
+        ContentValues[] returnContentValues = new ContentValues[TestMovieProvider.BULK_RECORDS_TO_INSERT];
+
+        for (int i = 0; i < TestMovieProvider.BULK_RECORDS_TO_INSERT; i++) {
+            ContentValues reviewValues = new ContentValues();
+            reviewValues.put(MovieContract.ReviewEntry.REVIEW_MOVIE_ID, movieId);
+            reviewValues.put(MovieContract.ReviewEntry.REVIEW_ID,TEST_ID+"//"+i);
+            reviewValues.put(MovieContract.ReviewEntry.REVIEW_CONTENT,TEST_CONTENT + i + " movies.");
+            reviewValues.put(MovieContract.ReviewEntry.REVIEW_AUTHOR,TEST_AUTHOR);
+            reviewValues.put(MovieContract.ReviewEntry.REVIEW_URL,TEST_URL);
+            returnContentValues[i] = reviewValues;
+        }
+
+        return returnContentValues;
+    }
+
     /*
         Use this utility class to test the ContentObserver callbacks using the PollingCheck class
         that we grabbed from the Android CTS tests.

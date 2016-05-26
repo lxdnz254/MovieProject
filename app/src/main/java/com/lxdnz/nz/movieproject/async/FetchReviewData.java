@@ -28,6 +28,7 @@ import java.net.URL;
 public class FetchReviewData extends AsyncTask<Long, Void, Review[]> {
 
     private Context mContext;
+    private Review[] mReviews;
     private static final String SCHEME = "http";
     private static final String AUTHORITY = "api.themoviedb.org";
     private static final String VERSION = "3";
@@ -37,8 +38,9 @@ public class FetchReviewData extends AsyncTask<Long, Void, Review[]> {
 
     private final String LOG_TAG = FetchReviewData.class.getSimpleName();
 
-    public FetchReviewData(Context context){
+    public FetchReviewData(Context context, Review[] reviews){
         this.mContext = context;
+        this.mReviews = reviews;
     }
 
     @Override
@@ -82,7 +84,9 @@ public class FetchReviewData extends AsyncTask<Long, Void, Review[]> {
                         i++;
 
                     }while (reviewCursor.moveToNext());
+                    reviewCursor.close();
                 }else{
+                    reviewCursor.close();
                     arrayOfReviews = null;
                 }
 

@@ -387,48 +387,7 @@ public class TestMovieProvider extends AndroidTestCase{
     }
 
     // Create some bulk values to test.
-    static private final int BULK_RECORDS_TO_INSERT = 5;
-
-    static ContentValues[] createBulkTrailerValuesInsert(long movieId) {
-        String TEST_ID = "54749bea9251414f41001b58";
-        String TEST_KEY = "bvu-zlR5A8Q";
-        String TEST_NAME = "Teaser";
-        int[] TEST_SIZE = {320, 540, 720, 1080, 2160};
-
-        ContentValues[] returnContentValues = new ContentValues[BULK_RECORDS_TO_INSERT];
-
-        for (int i=0; i < BULK_RECORDS_TO_INSERT; i++){
-            ContentValues trailerValues = new ContentValues();
-            trailerValues.put(TrailerEntry.TRAILER_MOVIE_ID, movieId);
-            trailerValues.put(TrailerEntry.TRAILER_ID, TEST_ID+"//"+i);
-            trailerValues.put(TrailerEntry.TRAILER_KEY, TEST_KEY);
-            trailerValues.put(TrailerEntry.TRAILER_NAME, TEST_NAME);
-            trailerValues.put(TrailerEntry.TRAILER_SIZE, TEST_SIZE[i]);
-            returnContentValues[i] = trailerValues;
-        }
-        return returnContentValues;
-    }
-
-    static ContentValues[] createBulkReviewValuesInsert(long movieId) {
-        String TEST_ID = "55910381c3a36807f900065d";
-        String TEST_CONTENT = "I was a huge fan of the original ";
-        String TEST_AUTHOR = "jonlikesmoviesthatdontsuck";
-        String TEST_URL = "https://www.themoviedb.org/review/55910381c3a36807f900065d";
-
-        ContentValues[] returnContentValues = new ContentValues[BULK_RECORDS_TO_INSERT];
-
-        for (int i=0; i < BULK_RECORDS_TO_INSERT; i++) {
-            ContentValues reviewValues = new ContentValues();
-            reviewValues.put(ReviewEntry.REVIEW_MOVIE_ID, movieId);
-            reviewValues.put(ReviewEntry.REVIEW_ID,TEST_ID+"//"+i);
-            reviewValues.put(ReviewEntry.REVIEW_CONTENT,TEST_CONTENT + i + " movies.");
-            reviewValues.put(ReviewEntry.REVIEW_AUTHOR,TEST_AUTHOR);
-            reviewValues.put(ReviewEntry.REVIEW_URL,TEST_URL);
-            returnContentValues[i] = reviewValues;
-        }
-
-        return returnContentValues;
-    }
+    static public final int BULK_RECORDS_TO_INSERT = 5;
 
     // Create the bulkInsert Test
     public void testBulkInsert() {
@@ -457,7 +416,7 @@ public class TestMovieProvider extends AndroidTestCase{
         // now we can insert some bulk trailers .. with Content Providers you only need to
         // implement the features you use, so no need to bulk insert Movies as they'll be actioned
         // to the database one at a time.
-        ContentValues[] bulkInsertTrailerValues = createBulkTrailerValuesInsert(movieId);
+        ContentValues[] bulkInsertTrailerValues = TestUtilities.createBulkTrailerValuesInsert(movieId);
 
         // Register a content Observer for the bulk insert
         TestUtilities.TestContentObserver trailerObserver = TestUtilities.getTestContentObserver();
@@ -494,7 +453,7 @@ public class TestMovieProvider extends AndroidTestCase{
         trailerCursor.close();
 
         // Now test the Review BulkInsert
-        ContentValues[] bulkInsertReviewValues = createBulkReviewValuesInsert(movieId);
+        ContentValues[] bulkInsertReviewValues = TestUtilities.createBulkReviewValuesInsert(movieId);
 
         // Register the content observer
         TestUtilities.TestContentObserver reviewObserver = TestUtilities.getTestContentObserver();
@@ -567,7 +526,7 @@ public class TestMovieProvider extends AndroidTestCase{
 
         // Now add the data again, it should overwrite the data and end with same number of records
         // but ids increased
-        ContentValues[] bulkInsertTrailerValues = createBulkTrailerValuesInsert(movieId);
+        ContentValues[] bulkInsertTrailerValues = TestUtilities.createBulkTrailerValuesInsert(movieId);
 
         // Register a content Observer for the bulk insert
         TestUtilities.TestContentObserver trailerObserver = TestUtilities.getTestContentObserver();
@@ -623,7 +582,7 @@ public class TestMovieProvider extends AndroidTestCase{
         reviewCursor.close();
 
         // insert review data again
-        ContentValues[] bulkInsertReviewValues = createBulkReviewValuesInsert(movieId);
+        ContentValues[] bulkInsertReviewValues = TestUtilities.createBulkReviewValuesInsert(movieId);
 
         // Register the content observer
         TestUtilities.TestContentObserver reviewObserver = TestUtilities.getTestContentObserver();

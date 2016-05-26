@@ -10,6 +10,8 @@ import com.lxdnz.nz.movieproject.async.FetchReviewData;
 import com.lxdnz.nz.movieproject.async.FetchTrailerData;
 import com.lxdnz.nz.movieproject.data.MovieContract;
 import com.lxdnz.nz.movieproject.objects.Movie;
+import com.lxdnz.nz.movieproject.objects.Review;
+import com.lxdnz.nz.movieproject.objects.Trailer;
 
 /**
  * Created by alex on 23/05/16.
@@ -17,6 +19,11 @@ import com.lxdnz.nz.movieproject.objects.Movie;
 public class Utilities {
 
     public Context mContext;
+    public Trailer[] mTrailers;
+    public Review[] mReviews;
+
+    private static int insertTrailers;
+    private static int insertReviews;
 
     public Utilities(Context context){
         this.mContext = context;
@@ -41,9 +48,10 @@ public class Utilities {
             favMovieId = favoriteCursor.getLong(favMovieIdIndex);
         } else {
             // Fetch trailer and review data
-            FetchTrailerData ftd = new FetchTrailerData(mContext);
-            FetchReviewData frd = new FetchReviewData(mContext);
-            ftd.execute((long)favMovie.getId());
+            FetchTrailerData ftd = new FetchTrailerData(mContext, mTrailers);
+            FetchReviewData frd = new FetchReviewData(mContext, mReviews);
+
+            ftd.execute((long) favMovie.getId());
             frd.execute((long)favMovie.getId());
 
             // now ContentProvider is set up, inserting rows is pretty simple
@@ -68,9 +76,45 @@ public class Utilities {
             );
             // the resulting URI contains the ID for the row, extract the Id from the URI
             favMovieId = ContentUris.parseId(insertedUri);
+
+            // Now add the trailer and review data to the database. iterate over the returned array.
+            if (mTrailers != null){
+                ContentValues [] bulkTrailers = new ContentValues[mTrailers.length];
+                for (int i=0; i < mTrailers.length; i++){
+                    ContentValues trailerValues = new ContentValues();
+
+                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_MOVIE_ID, mTrailers[i].getMovieId());
+                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_ID, mTrailers[i].getTrailerId());
+                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_KEY, mTrailers[i].getTrailerKey());
+                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_NAME, mTrailers[i].getTrailerName());
+                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_SIZE, mTrailers[i].getTrailerSize());
+                    bulkTrailers[i] = trailerValues;
+                }
+                insertTrailers = mContext.getContentResolver().bulkInsert(
+                        MovieContract.TrailerEntry.TRAILER_URI,
+                        bulkTrailers
+                );
+            }
+
+            if (mReviews != null){
+                ContentValues [] bulkReviews = new ContentValues[mReviews.length];
+                for (int i = 0; i < mReviews.length; i++) {
+                    ContentValues reviewValues = new ContentValues();
+
+                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_MOVIE_ID, mReviews[i].getMovieId());
+                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_ID, mReviews[i].getReviewId());
+                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_AUTHOR, mReviews[i].getAuthor());
+                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_CONTENT, mReviews[i].getReviewContent());
+                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_URL, mReviews[i].getUrl());
+                    bulkReviews[i] = reviewValues;
+                }
+                insertReviews = mContext.getContentResolver().bulkInsert(
+                        MovieContract.ReviewEntry.REVIEW_URI,
+                        bulkReviews
+                );
+            }
         }
         favoriteCursor.close();
-
 
         // Wait, that worked? Yes!
         return favMovieId;
@@ -92,5 +136,15 @@ public class Utilities {
             return true;
         }
         return false;
+    }
+
+    public static int getTrailerCount() {
+
+        return insertTrailers;
+    }
+
+    public static int getReviewCount() {
+
+        return insertReviews;
     }
 }

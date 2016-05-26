@@ -1,5 +1,6 @@
 package com.lxdnz.nz.movieproject.async;
 
+import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -28,6 +29,7 @@ import java.net.URL;
 public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
 
     private Context mContext;
+    private Trailer[] mTrailers;
     private static final String SCHEME = "http";
     private static final String AUTHORITY = "api.themoviedb.org";
     private static final String VERSION = "3";
@@ -37,8 +39,9 @@ public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
 
     private final String LOG_TAG = FetchTrailerData.class.getSimpleName();
 
-    public FetchTrailerData(Context context) {
+    public FetchTrailerData(Context context, Trailer[] trailers) {
         this.mContext = context;
+        this.mTrailers = trailers;
     }
 
     @Override
@@ -81,7 +84,9 @@ public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
                         i++;
 
                     }while (trailerCursor.moveToNext());
+                    trailerCursor.close();
                 }else{
+                    trailerCursor.close();
                     arrayofTrailers = null;
                 }
 
@@ -201,4 +206,13 @@ public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
 
     }
 
+    @Override
+    protected void onPostExecute(Trailer[] trailers) {
+        if (trailers != null){
+            for (int i=0; i < trailers.length; i++){
+                mTrailers[i] = trailers[i];
+            }
+        }
+
+    }
 }

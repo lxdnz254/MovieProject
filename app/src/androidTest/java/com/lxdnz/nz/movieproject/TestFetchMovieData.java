@@ -1,11 +1,14 @@
 package com.lxdnz.nz.movieproject;
 
 import android.annotation.TargetApi;
+import android.content.ContentValues;
 import android.database.Cursor;
 import android.test.AndroidTestCase;
 
 import com.lxdnz.nz.movieproject.async.FetchMovieData;
 import com.lxdnz.nz.movieproject.data.MovieContract;
+import com.lxdnz.nz.movieproject.data.TestMovieProvider;
+import com.lxdnz.nz.movieproject.data.TestUtilities;
 import com.lxdnz.nz.movieproject.objects.Movie;
 import com.lxdnz.nz.movieproject.utils.Utilities;
 
@@ -26,6 +29,9 @@ public class TestFetchMovieData extends AndroidTestCase {
 
     static final String TEST_ID = Integer.toString(testMovie.getId());
 
+    ContentValues[] trailers = TestUtilities.createBulkTrailerValuesInsert((long)(testMovie.getId()));
+    ContentValues[] reviews = TestUtilities.createBulkReviewValuesInsert((long)(testMovie.getId()));
+
     private static final String LOG_TAG = TestFetchMovieData.class.getSimpleName();
 
 
@@ -37,10 +43,19 @@ public class TestFetchMovieData extends AndroidTestCase {
                 new String[]{TEST_ID});
 
         long favoriteId = new Utilities(mContext).markAsFavorite(testMovie);
+        int trailerCount = Utilities.getTrailerCount();
+        int reviewCount = Utilities.getReviewCount();
 
         // does markAsFavorite return a valid record ID?
         assertFalse("Error: markAsFavorite returned an invalid ID on insert",
                 favoriteId == -1);
+        // does trailerCount return the correct number of records?
+        assertFalse("Error: markAsFavorite returned incorrect number of Trailers",
+                trailerCount == TestMovieProvider.BULK_RECORDS_TO_INSERT);
+        // test reviewCount
+        assertFalse("Error: markAsFavorite returned incorrect number of Reviews",
+                reviewCount == TestMovieProvider.BULK_RECORDS_TO_INSERT);
+
         // test all this twice
         for (int i=0; i <2; i++) {
 
