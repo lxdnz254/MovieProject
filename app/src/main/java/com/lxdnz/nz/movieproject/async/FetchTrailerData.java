@@ -1,6 +1,5 @@
 package com.lxdnz.nz.movieproject.async;
 
-import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
 import android.net.Uri;
@@ -30,6 +29,9 @@ public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
 
     private Context mContext;
     private Trailer[] mTrailers;
+    private Listener mListener =null;
+    private boolean trailersExist = false;
+
     private static final String SCHEME = "http";
     private static final String AUTHORITY = "api.themoviedb.org";
     private static final String VERSION = "3";
@@ -39,9 +41,22 @@ public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
 
     private final String LOG_TAG = FetchTrailerData.class.getSimpleName();
 
+    /**
+     * Interface definition for a callback to be invoked when trailers are loaded.
+     */
+    public interface Listener {
+        void onFetchTrailersFinished(Trailer[] trailers);
+
+    }
+
     public FetchTrailerData(Context context, Trailer[] trailers) {
         this.mContext = context;
         this.mTrailers = trailers;
+    }
+
+    public FetchTrailerData setListener(Listener listener){
+        this.mListener = listener;
+        return this;
     }
 
     @Override
@@ -51,7 +66,9 @@ public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
         if (params == null) {
             return null;
         } else {
-            String movieId = params+"";
+            Log.v(LOG_TAG, "params:"+params[0]);
+            String movieId = params[0].toString();
+            Log.v(LOG_TAG, "movieId = :"+movieId);
             if (new Utilities(mContext).isFavorite(movieId)){
                 // fetch existing data from local database
                 String [] columnString = new String[]{
@@ -69,8 +86,9 @@ public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
                         new String[]{movieId},
                         null
                 );
-                if (trailerCursor != null) {
+                if (trailerCursor.getCount() > 0) {
                     arrayofTrailers = new Trailer[trailerCursor.getCount()];
+                    trailersExist = true;
                     trailerCursor.moveToFirst();
                     int i=0;
                     do{
@@ -208,11 +226,11 @@ public class FetchTrailerData extends AsyncTask<Long, Void, Trailer[]> {
 
     @Override
     protected void onPostExecute(Trailer[] trailers) {
-        if (trailers != null){
-            for (int i=0; i < trailers.length; i++){
-                mTrailers[i] = trailers[i];
-            }
+        Log.v(LOG_TAG, "at Trailer postExecute");
+        if (this.mListener != null) {
+            this.mListener.onFetchTrailersFinished(trailers);
         }
 
     }
+
 }

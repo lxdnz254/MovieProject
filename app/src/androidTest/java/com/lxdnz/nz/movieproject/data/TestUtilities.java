@@ -23,14 +23,14 @@ public class TestUtilities extends AndroidTestCase{
     static final int TEST_ID = 135397;
     static final long TEST_DATE = 1419033600L; // December 20th, 2014
 
-    static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
+    public static void validateCursor(String error, Cursor valueCursor, ContentValues expectedValues) {
 
         assertTrue("Empty cursor returned. " + error, valueCursor.moveToFirst());
         validateCurrentRecord(error, valueCursor, expectedValues);
         valueCursor.close();
     }
 
-    static void validateCurrentRecord(String error, Cursor valueCursor, ContentValues expectedValues) {
+    public static void validateCurrentRecord(String error, Cursor valueCursor, ContentValues expectedValues) {
         Set<Map.Entry<String, Object>> valueSet = expectedValues.valueSet();
         for (Map.Entry<String, Object> entry: valueSet) {
             String columnName = entry.getKey();
@@ -82,7 +82,7 @@ public class TestUtilities extends AndroidTestCase{
         return reviewValues;
     }
 
-    static int insertMovieValues(Context context) {
+    public static int insertMovieValues(Context context) {
         // insert movie records into the database
         MovieDBHelper dbHelper = new MovieDBHelper(context);
         SQLiteDatabase db = dbHelper.getWritableDatabase();
@@ -227,7 +227,7 @@ public class TestUtilities extends AndroidTestCase{
         correct Uri is returned.
      */
 
-    static class TestContentObserver extends ContentObserver {
+    public static class TestContentObserver extends ContentObserver {
         final HandlerThread mHT;
         boolean mContentChanged;
 
@@ -268,7 +268,7 @@ public class TestUtilities extends AndroidTestCase{
         }
     }
 
-    static TestContentObserver getTestContentObserver() {
+    public static TestContentObserver getTestContentObserver() {
         return TestContentObserver.getTestContentObserver();
     }
 

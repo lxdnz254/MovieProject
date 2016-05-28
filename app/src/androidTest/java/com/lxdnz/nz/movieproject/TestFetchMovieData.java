@@ -3,14 +3,25 @@ package com.lxdnz.nz.movieproject;
 import android.annotation.TargetApi;
 import android.content.ContentValues;
 import android.database.Cursor;
+import android.os.AsyncTask;
 import android.test.AndroidTestCase;
+import android.util.Log;
 
 import com.lxdnz.nz.movieproject.async.FetchMovieData;
+import com.lxdnz.nz.movieproject.async.FetchReviewData;
+import com.lxdnz.nz.movieproject.async.FetchTrailerData;
 import com.lxdnz.nz.movieproject.data.MovieContract;
 import com.lxdnz.nz.movieproject.data.TestMovieProvider;
 import com.lxdnz.nz.movieproject.data.TestUtilities;
 import com.lxdnz.nz.movieproject.objects.Movie;
+import com.lxdnz.nz.movieproject.objects.Review;
+import com.lxdnz.nz.movieproject.objects.Trailer;
 import com.lxdnz.nz.movieproject.utils.Utilities;
+
+import java.util.Map;
+import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Created by alex on 18/05/16.
@@ -29,10 +40,25 @@ public class TestFetchMovieData extends AndroidTestCase {
 
     static final String TEST_ID = Integer.toString(testMovie.getId());
 
-    ContentValues[] trailers = TestUtilities.createBulkTrailerValuesInsert((long)(testMovie.getId()));
-    ContentValues[] reviews = TestUtilities.createBulkReviewValuesInsert((long)(testMovie.getId()));
-
     private static final String LOG_TAG = TestFetchMovieData.class.getSimpleName();
+
+    CountDownLatch trailerSignal = null;
+    CountDownLatch reviewSignal = null;
+
+    Trailer[] mTrailers;
+    Trailer[] testTrailers;
+
+    Review[] mReviews;
+    Review[] testReviews;
+
+    private boolean trailersExist = false;
+    private boolean reviewsExist = false;
+
+    @Override
+    protected void setUp() throws Exception {
+        trailerSignal = new CountDownLatch(1);
+        reviewSignal = new CountDownLatch(1);
+    }
 
 
     @TargetApi(11)
@@ -41,20 +67,20 @@ public class TestFetchMovieData extends AndroidTestCase {
         getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
                 MovieContract.MovieEntry.MOVIE_ID + " = ?",
                 new String[]{TEST_ID});
+        getContext().getContentResolver().delete(MovieContract.TrailerEntry.TRAILER_URI,
+                MovieContract.TrailerEntry.TRAILER_MOVIE_ID + " = ?",
+                new String[]{TEST_ID});
+        getContext().getContentResolver().delete(MovieContract.ReviewEntry.REVIEW_URI,
+                MovieContract.ReviewEntry.REVIEW_MOVIE_ID + " = ?",
+                new String[]{TEST_ID});
+
+
 
         long favoriteId = new Utilities(mContext).markAsFavorite(testMovie);
-        int trailerCount = Utilities.getTrailerCount();
-        int reviewCount = Utilities.getReviewCount();
 
         // does markAsFavorite return a valid record ID?
         assertFalse("Error: markAsFavorite returned an invalid ID on insert",
                 favoriteId == -1);
-        // does trailerCount return the correct number of records?
-        assertFalse("Error: markAsFavorite returned incorrect number of Trailers",
-                trailerCount == TestMovieProvider.BULK_RECORDS_TO_INSERT);
-        // test reviewCount
-        assertFalse("Error: markAsFavorite returned incorrect number of Reviews",
-                reviewCount == TestMovieProvider.BULK_RECORDS_TO_INSERT);
 
         // test all this twice
         for (int i=0; i <2; i++) {
@@ -104,18 +130,181 @@ public class TestFetchMovieData extends AndroidTestCase {
             // there should be no more records
             assertFalse("Error: there should only be one record returned from a favorite query",
                     favoriteCursor.moveToNext());
+
+
             // add the favorite again
             long newFavoriteId = new Utilities(mContext).markAsFavorite(testMovie);
             assertEquals("Error: inserting a favorite again should return the same ID",
                     favoriteId, newFavoriteId);
         }
+        // create the fake test reviews & trailers
+        ContentValues[] bulkTrailers = TestUtilities.createBulkTrailerValuesInsert(testMovie.getId());
+
+        assertTrue("Error: failed to insert bulkTrailers", bulkTrailers != null);
+
+        // Register a content Observer for the bulk insert
+        TestUtilities.TestContentObserver trailerObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieContract.TrailerEntry.TRAILER_URI, true, trailerObserver);
+
+        int insertCount = mContext.getContentResolver().bulkInsert(MovieContract.TrailerEntry.TRAILER_URI, bulkTrailers);
+
+        // If this fails, it means that you most-likely are not calling the
+        // getContext().getContentResolver().notifyChange(uri, null); in your BulkInsert
+        // ContentProvider method.
+        trailerObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(trailerObserver);
+        assertTrue("Error: inserted wrong amount of Trailers", insertCount == TestMovieProvider.BULK_RECORDS_TO_INSERT);
+
+        ContentValues[] bulkReviews = TestUtilities.createBulkReviewValuesInsert(testMovie.getId());
+
+        assertTrue("Error: failed to insert bulkReviews", bulkReviews != null);
+
+        // Register the content observer
+        TestUtilities.TestContentObserver reviewObserver = TestUtilities.getTestContentObserver();
+        mContext.getContentResolver().registerContentObserver(MovieContract.ReviewEntry.REVIEW_URI, true, reviewObserver);
+
+        insertCount = mContext.getContentResolver().bulkInsert(MovieContract.ReviewEntry.REVIEW_URI, bulkReviews);
+        // check for failure.
+        reviewObserver.waitForNotificationOrFail();
+        mContext.getContentResolver().unregisterContentObserver(reviewObserver);
+        assertTrue("Error: inserted wrong amount of Reviews", insertCount == TestMovieProvider.BULK_RECORDS_TO_INSERT);
+
+
+        try {
+            testTrailers = testFetchTrailerData();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+
+        try {
+            testReviews = testFetchReviewData();
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
+        for (int i =0; i < TestMovieProvider.BULK_RECORDS_TO_INSERT; i++) {
+            Set<Map.Entry<String, Object>> trailerValueSet = bulkTrailers[i].valueSet();
+            Set<Map.Entry<String, Object>> reviewValueSet = bulkReviews[i].valueSet();
+
+            for (Map.Entry<String, Object> entry: trailerValueSet) {
+                String columnName = entry.getKey();
+
+                switch (columnName){
+                    case "name": {
+                        assertEquals(testTrailers[i].getTrailerName(), entry.getValue().toString());
+                        break;
+                    }
+                    case "t_id": {
+                        assertEquals(Integer.toString(testTrailers[i].getMovieId()), entry.getValue().toString());
+                        break;
+                    }
+                    case "size": {
+                        assertEquals(Integer.toString(testTrailers[i].getTrailerSize()),
+                                entry.getValue().toString());
+                        break;
+                    }
+                    case "key": {
+                        assertEquals(testTrailers[i].getTrailerKey(), entry.getValue().toString());
+                        break;
+                    }
+                    case "id": {
+                        assertEquals(testTrailers[i].getTrailerId(), entry.getValue().toString());
+                    }
+                }
+            }
+
+            for (Map.Entry<String, Object> entry: reviewValueSet) {
+                String columnName = entry.getKey();
+
+                switch (columnName){
+                    case "content": {
+                        assertEquals(testReviews[i].getReviewContent(), entry.getValue().toString());
+                        break;
+                    }
+                    case "id": {
+                        assertEquals(testReviews[i].getReviewId(), entry.getValue().toString());
+                        break;
+                    }
+                    case  "r_id": {
+                        assertEquals(Integer.toString(testReviews[i].getMovieId()),
+                                entry.getValue().toString());
+                        break;
+                    }
+                    case "author": {
+                        assertEquals(testReviews[i].getAuthor(), entry.getValue().toString());
+                    }
+                }
+            }
+
+
+        }
         // reset our state back to normal
         getContext().getContentResolver().delete(MovieContract.MovieEntry.CONTENT_URI,
                 MovieContract.MovieEntry.MOVIE_ID + " = ?",
                 new String[]{TEST_ID});
+        getContext().getContentResolver().delete(MovieContract.TrailerEntry.TRAILER_URI,
+                MovieContract.TrailerEntry.TRAILER_MOVIE_ID + " = ?",
+                new String[]{TEST_ID});
+        getContext().getContentResolver().delete(MovieContract.ReviewEntry.REVIEW_URI,
+                MovieContract.ReviewEntry.REVIEW_MOVIE_ID + " = ?",
+                new String[]{TEST_ID});
         // clean up the test so other tests can use the ContentProvider
+
         getContext().getContentResolver().
                 acquireContentProviderClient(MovieContract.MovieEntry.CONTENT_URI).
                 getLocalContentProvider().shutdown();
+
+    }
+
+    public Trailer[] testFetchTrailerData() throws InterruptedException{
+
+        // create countdown listeners
+        FetchTrailerData trailerTask = new FetchTrailerData(mContext, mTrailers);
+
+        trailerTask.setListener(new FetchTrailerData.Listener() {
+            @Override
+            public void onFetchTrailersFinished(Trailer[] trailers) {
+                if (trailers != null) {
+                    Log.v(LOG_TAG, "trailers are not null");
+                    mTrailers = trailers;
+                    trailersExist = true;
+                }
+                Log.v(LOG_TAG, "Trailers Finished");
+                trailerSignal.countDown();
+            }
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (long)testMovie.getId());
+
+
+        // wait for the asyncTasks to finish before continuing the testing
+        trailerSignal.await();
+
+        assertTrue("Error: No trailers returned", trailersExist);
+        assertTrue("Error: Wrong amount of trailers returned", mTrailers.length == TestMovieProvider.BULK_RECORDS_TO_INSERT);
+
+        return mTrailers;
+    }
+
+    public Review[] testFetchReviewData() throws InterruptedException{
+
+        FetchReviewData reviewTask = new FetchReviewData(mContext, mReviews);
+
+        reviewTask.setListener(new FetchReviewData.Listener() {
+            @Override
+            public void onFetchReviewsFinished(Review[] reviews) {
+                if (reviews !=null) {
+                    Log.v(LOG_TAG, "reviews are not null");
+                    mReviews = reviews;
+                    reviewsExist = true;
+                }
+                Log.v(LOG_TAG, "reviews finished");
+                reviewSignal.countDown();
+            }
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (long) testMovie.getId());
+
+        reviewSignal.await();
+
+        assertTrue("Error: No reviews returned", reviewsExist);
+        assertTrue("Error: Wrong amount of reviews returned", mReviews.length == TestMovieProvider.BULK_RECORDS_TO_INSERT);
+
+        return mReviews;
     }
 }

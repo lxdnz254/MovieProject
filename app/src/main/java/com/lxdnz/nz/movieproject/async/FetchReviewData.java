@@ -29,6 +29,10 @@ public class FetchReviewData extends AsyncTask<Long, Void, Review[]> {
 
     private Context mContext;
     private Review[] mReviews;
+    private boolean reviewsExist = false;
+
+    private Listener mListener = null;
+
     private static final String SCHEME = "http";
     private static final String AUTHORITY = "api.themoviedb.org";
     private static final String VERSION = "3";
@@ -38,9 +42,18 @@ public class FetchReviewData extends AsyncTask<Long, Void, Review[]> {
 
     private final String LOG_TAG = FetchReviewData.class.getSimpleName();
 
+    public interface Listener {
+        void onFetchReviewsFinished(Review[] reviews);
+    }
+
     public FetchReviewData(Context context, Review[] reviews){
         this.mContext = context;
         this.mReviews = reviews;
+    }
+
+    public FetchReviewData setListener(Listener listener){
+        this.mListener = listener;
+        return this;
     }
 
     @Override
@@ -50,7 +63,7 @@ public class FetchReviewData extends AsyncTask<Long, Void, Review[]> {
         if (params == null) {
             return null;
         } else {
-            String movieId = params+"";
+            String movieId = params[0].toString();
             if (new Utilities(mContext).isFavorite(movieId)){
                 // fetch existing data from local database
                 String[] columnString = new String[] {
@@ -69,8 +82,9 @@ public class FetchReviewData extends AsyncTask<Long, Void, Review[]> {
                         null
                 );
 
-                if (reviewCursor != null) {
+                if (reviewCursor.getCount() > 0) {
                     arrayOfReviews = new Review[reviewCursor.getCount()];
+                    reviewsExist = true;
                     reviewCursor.moveToFirst();
                     int i=0;
                     do {
@@ -205,4 +219,11 @@ public class FetchReviewData extends AsyncTask<Long, Void, Review[]> {
         return reviewArray;
     }
 
+    @Override
+    protected void onPostExecute(Review[] reviews) {
+        Log.v(LOG_TAG, "at review Post Execute");
+        if (this.mListener != null) {
+            this.mListener.onFetchReviewsFinished(reviews);
+        }
+    }
 }
