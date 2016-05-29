@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
+<RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:orientation="vertical" android:layout_width="match_parent"
     android:layout_height="match_parent"
-    tools:context="com.lxdnz.nz.movieproject.fragments.TrailerFragment">
+    tools:context="com.lxdnz.nz.movieproject.fragments.TrailerFragment"
+    tools:showIn="@layout/fragment_trailer">
 
 
     <android.support.v7.widget.RecyclerView
@@ -12,6 +13,7 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_marginTop="@dimen/trailer_list_vertical_padding"
-        tools:listitem="@layout/trailer_list_content" />
+        tools:listitem="@layout/trailer_list_content"
+         />
 
-</ScrollView>
+</RelativeLayout>

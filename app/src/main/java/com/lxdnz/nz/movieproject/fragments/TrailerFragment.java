@@ -10,6 +10,7 @@ import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.ShareActionProvider;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -29,7 +30,7 @@ import java.util.List;
 /**
  * Created by alex on 29/05/16.
  */
-public class TrailerFragment extends Fragment implements FetchTrailerData.Listener, TrailerAdapter.Callbacks{
+public class TrailerFragment extends Fragment implements TrailerAdapter.Callbacks{
 
     /**
      * The fragment argument representing the movie that this fragment
@@ -38,6 +39,8 @@ public class TrailerFragment extends Fragment implements FetchTrailerData.Listen
     public static final String ARG_MOVIE = "ARG_MOVIE";
     public static final String EXTRA_TRAILERS = "EXTRA_TRAILERS";
     public static final String EXTRA_REVIEWS = "EXTRA_REVIEWS";
+
+    private static final String LOG_TAG = TrailerFragment.class.getSimpleName();
 
     private TrailerAdapter mTrailerAdapter;
     private Movie mMovie;
@@ -93,20 +96,20 @@ public class TrailerFragment extends Fragment implements FetchTrailerData.Listen
 
     private void fetchTrailers() {
         FetchTrailerData task = new FetchTrailerData(mContext, mTrailers);
-        task.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (long)mMovie.getId());
+        task.setListener(new FetchTrailerData.Listener() {
+            @Override
+            public void onFetchTrailersFinished(Trailer[] trailers) {
+                List trailerList = Arrays.asList(trailers);
+                Log.v(LOG_TAG, "trailerList size is :"+trailerList.size());
+                mTrailerAdapter.add(trailerList);
+                if (mTrailerAdapter.getItemCount() > 0) {
+                    Trailer trailer = mTrailerAdapter.getTrailers().get(0);
+                    //updateShareActionProvider(trailer);
+                }
+            }
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (long)mMovie.getId());
     }
 
-    @Override
-    public void onFetchTrailersFinished(Trailer[] trailers) {
-        List trailerList = Arrays.asList(trailers);
-        mTrailerAdapter.add(trailerList);
-        if (mTrailerAdapter.getItemCount() > 0) {
-            Trailer trailer = mTrailerAdapter.getTrailers().get(0);
-            updateShareActionProvider(trailer);
-        }
-
-
-    }
 
     @Override
     public void watch(Trailer trailer, int position) {
