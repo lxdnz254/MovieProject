@@ -169,18 +169,24 @@ public class Utilities {
     }
 
     public Cursor getCursor(String stringId) {
-        return mContext.getContentResolver().query(
+
+        Cursor c = mContext.getContentResolver().query(
                     MovieContract.MovieEntry.CONTENT_URI,
                     new String[]{MovieContract.MovieEntry.MOVIE_ID},
-                    MovieContract.MovieEntry.MOVIE_ID + " = ?",
-                    new String[]{stringId},
+                    MovieContract.MovieEntry.MOVIE_ID + " = " + stringId,
+                    null,
                     null
             );
+        if(c == null){
+            return null;
+        }
+        return c;
     }
 
     public boolean isFavorite(String movieId) {
         Cursor favCursor = getCursor(movieId);
-        if (favCursor.moveToFirst()){
+        if (favCursor != null && favCursor.moveToFirst()){
+            favCursor.close();
             return true;
         }
         return false;

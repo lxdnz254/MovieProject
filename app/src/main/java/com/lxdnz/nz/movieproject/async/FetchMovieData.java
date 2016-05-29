@@ -1,9 +1,6 @@
 package com.lxdnz.nz.movieproject.async;
 
-import android.content.ContentUris;
-import android.content.ContentValues;
 import android.content.Context;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
@@ -11,9 +8,8 @@ import android.util.Log;
 import com.lxdnz.nz.movieproject.BuildConfig;
 import com.lxdnz.nz.movieproject.adapters.ImageAdapter;
 import com.lxdnz.nz.movieproject.objects.Movie;
-import com.lxdnz.nz.movieproject.MovieGridFragment;
+import com.lxdnz.nz.movieproject.fragments.MovieGridFragment;
 import com.lxdnz.nz.movieproject.R;
-import com.lxdnz.nz.movieproject.data.MovieContract;
 
 import org.json.JSONArray;
 import org.json.JSONException;

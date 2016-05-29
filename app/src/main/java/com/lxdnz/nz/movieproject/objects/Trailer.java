@@ -60,6 +60,10 @@ public class Trailer implements Parcelable {
         return trailer_size;
     }
 
+    public String getTrailerUrl() {
+        return "http://www.youtube.com/watch?v=" + trailer_key;
+    }
+
     public static final Parcelable.Creator<Trailer> CREATOR =
             new Creator<Trailer>() {
                 @Override

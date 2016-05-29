@@ -1,4 +1,4 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.fragments;
 
 import android.content.Context;
 import android.content.Intent;
@@ -12,6 +12,8 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.GridView;
 
+import com.lxdnz.nz.movieproject.MovieDetailActivity;
+import com.lxdnz.nz.movieproject.R;
 import com.lxdnz.nz.movieproject.adapters.ImageAdapter;
 import com.lxdnz.nz.movieproject.async.FetchMovieData;
 import com.lxdnz.nz.movieproject.objects.Movie;
