@@ -45,9 +45,9 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
     public void onBindViewHolder(final ViewHolder holder, int position) {
         final Trailer trailer = mTrailers.get(position);
         final Context context = holder.mView.getContext();
-        /*
+
         float paddingLeft = 0;
-        if (position == 0) {
+        if (position >= 0) {
             paddingLeft = context.getResources().getDimension(R.dimen.detail_horizontal_padding);
         }
 
@@ -57,7 +57,7 @@ public class TrailerAdapter extends RecyclerView.Adapter<TrailerAdapter.ViewHold
         }
 
         holder.mView.setPadding((int) paddingLeft, 0, (int) paddingRight, 0);
-        */
+
         holder.mTrailer = trailer;
 
         String thumbnailUrl = "http://img.youtube.com/vi/" + trailer.getTrailerKey() + "/0.jpg";
