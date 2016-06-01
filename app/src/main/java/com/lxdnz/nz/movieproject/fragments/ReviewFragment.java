@@ -82,8 +82,10 @@ public class ReviewFragment extends Fragment implements ReviewAdapter.Callbacks{
         task.setListener(new FetchReviewData.Listener() {
             @Override
             public void onFetchReviewsFinished(Review[] reviews) {
-                List listReviews = Arrays.asList(reviews);
-                mReviewAdapter.add(listReviews);
+                if (reviews != null) {
+                    List listReviews = Arrays.asList(reviews);
+                    mReviewAdapter.add(listReviews);
+                }
             }
         }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (long)mMovie.getId());
 

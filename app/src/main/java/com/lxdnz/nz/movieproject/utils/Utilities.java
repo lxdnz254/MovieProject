@@ -59,11 +59,12 @@ public class Utilities {
                 if (trailers != null) {
                     Log.v(LOG_TAG, "trailers are not null");
                     mTrailers = trailers;
-                    trailersExist = true;
+                    storeTrailers();
+
                 }
                 Log.v(LOG_TAG, "fetchTrailerData Finished");
             }
-        });
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (long) favMovie.getId());
 
         frd.setListener(new FetchReviewData.Listener() {
             @Override
@@ -71,11 +72,12 @@ public class Utilities {
                 if (reviews !=null) {
                     Log.v(LOG_TAG, "reviews are not null");
                     mReviews = reviews;
-                    reviewsExist =true;
+                    storeReviews();
                 }
                 Log.v(LOG_TAG, "fetchReviewsData finished");
             }
-        });
+        }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (long) favMovie.getId());
+
 
 
         if (favoriteCursor.moveToFirst()){
@@ -84,8 +86,6 @@ public class Utilities {
 
 
         } else {
-
-
 
             // now ContentProvider is set up, inserting rows is pretty simple
             // First create ContentValues object to hold the data you want to insert
@@ -107,62 +107,12 @@ public class Utilities {
                     MovieContract.MovieEntry.CONTENT_URI,
                     favoriteValues
             );
+            Log.v(LOG_TAG, "inserted movie");
             // the resulting URI contains the ID for the row, extract the Id from the URI
             favMovieId = ContentUris.parseId(insertedUri);
 
-
-
-
         }
         favoriteCursor.close();
-
-        // execute the fetch trailers and reviews
-        ftd.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, favMovieId);
-        frd.executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, favMovieId);
-
-            Log.v(LOG_TAG, "Trailers returned: " + trailersExist);
-            Log.v(LOG_TAG, "Reviews returned: " + reviewsExist);
-
-
-            // Now add the trailer and review data to the database. iterate over the returned array.
-            if (mTrailers != null && trailersExist){
-                Log.v(LOG_TAG, "inserting trailers");
-                ContentValues [] bulkTrailers = new ContentValues[mTrailers.length];
-                for (int i=0; i < mTrailers.length; i++){
-                    ContentValues trailerValues = new ContentValues();
-
-                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_MOVIE_ID, mTrailers[i].getMovieId());
-                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_ID, mTrailers[i].getTrailerId());
-                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_KEY, mTrailers[i].getTrailerKey());
-                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_NAME, mTrailers[i].getTrailerName());
-                    trailerValues.put(MovieContract.TrailerEntry.TRAILER_SIZE, mTrailers[i].getTrailerSize());
-                    bulkTrailers[i] = trailerValues;
-                }
-                mContext.getContentResolver().bulkInsert(
-                        MovieContract.TrailerEntry.TRAILER_URI,
-                        bulkTrailers
-                );
-            }
-
-            if (mReviews != null && reviewsExist){
-                Log.v(LOG_TAG, "inserting reviews");
-                ContentValues [] bulkReviews = new ContentValues[mReviews.length];
-                for (int i = 0; i < mReviews.length; i++) {
-                    ContentValues reviewValues = new ContentValues();
-
-                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_MOVIE_ID, mReviews[i].getMovieId());
-                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_ID, mReviews[i].getReviewId());
-                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_AUTHOR, mReviews[i].getAuthor());
-                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_CONTENT, mReviews[i].getReviewContent());
-                    reviewValues.put(MovieContract.ReviewEntry.REVIEW_URL, mReviews[i].getUrl());
-                    bulkReviews[i] = reviewValues;
-                }
-                mContext.getContentResolver().bulkInsert(
-                        MovieContract.ReviewEntry.REVIEW_URI,
-                        bulkReviews
-                );
-            }
-
 
         // Wait, that worked? Yes!
         return favMovieId;
@@ -189,16 +139,53 @@ public class Utilities {
             favCursor.close();
             return true;
         }
+        favCursor.close();
         return false;
     }
 
-    public static int getTrailerCount() {
+    public void storeTrailers() {
 
-        return insertTrailers;
+        // Now add the trailer and review data to the database. iterate over the returned array.
+        if (mTrailers != null){
+            Log.v(LOG_TAG, "inserting trailers");
+            ContentValues [] bulkTrailers = new ContentValues[mTrailers.length];
+            for (int i=0; i < mTrailers.length; i++){
+                ContentValues trailerValues = new ContentValues();
+
+                trailerValues.put(MovieContract.TrailerEntry.TRAILER_MOVIE_ID, mTrailers[i].getMovieId());
+                trailerValues.put(MovieContract.TrailerEntry.TRAILER_ID, mTrailers[i].getTrailerId());
+                trailerValues.put(MovieContract.TrailerEntry.TRAILER_KEY, mTrailers[i].getTrailerKey());
+                trailerValues.put(MovieContract.TrailerEntry.TRAILER_NAME, mTrailers[i].getTrailerName());
+                trailerValues.put(MovieContract.TrailerEntry.TRAILER_SIZE, mTrailers[i].getTrailerSize());
+                bulkTrailers[i] = trailerValues;
+            }
+            mContext.getContentResolver().bulkInsert(
+                    MovieContract.TrailerEntry.TRAILER_URI,
+                    bulkTrailers
+            );
+        }
+
     }
 
-    public static int getReviewCount() {
+    public void storeReviews() {
 
-        return insertReviews;
+        if (mReviews != null){
+            Log.v(LOG_TAG, "inserting reviews");
+            ContentValues [] bulkReviews = new ContentValues[mReviews.length];
+            for (int i = 0; i < mReviews.length; i++) {
+                ContentValues reviewValues = new ContentValues();
+
+                reviewValues.put(MovieContract.ReviewEntry.REVIEW_MOVIE_ID, mReviews[i].getMovieId());
+                reviewValues.put(MovieContract.ReviewEntry.REVIEW_ID, mReviews[i].getReviewId());
+                reviewValues.put(MovieContract.ReviewEntry.REVIEW_AUTHOR, mReviews[i].getAuthor());
+                reviewValues.put(MovieContract.ReviewEntry.REVIEW_CONTENT, mReviews[i].getReviewContent());
+                reviewValues.put(MovieContract.ReviewEntry.REVIEW_URL, mReviews[i].getUrl());
+                bulkReviews[i] = reviewValues;
+            }
+            mContext.getContentResolver().bulkInsert(
+                    MovieContract.ReviewEntry.REVIEW_URI,
+                    bulkReviews
+            );
+        }
     }
 }

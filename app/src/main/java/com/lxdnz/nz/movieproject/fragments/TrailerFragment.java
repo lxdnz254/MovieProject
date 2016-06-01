@@ -100,12 +100,14 @@ public class TrailerFragment extends Fragment implements TrailerAdapter.Callback
         task.setListener(new FetchTrailerData.Listener() {
             @Override
             public void onFetchTrailersFinished(Trailer[] trailers) {
-                List trailerList = Arrays.asList(trailers);
-                Log.v(LOG_TAG, "trailerList size is :"+trailerList.size());
-                mTrailerAdapter.add(trailerList);
-                if (mTrailerAdapter.getItemCount() > 0) {
-                    Trailer trailer = mTrailerAdapter.getTrailers().get(0);
-                    //updateShareActionProvider(trailer);
+                if (trailers != null) {
+                    List trailerList = Arrays.asList(trailers);
+                    Log.v(LOG_TAG, "trailerList size is :" + trailerList.size());
+                    mTrailerAdapter.add(trailerList);
+                    if (mTrailerAdapter.getItemCount() > 0) {
+                        Trailer trailer = mTrailerAdapter.getTrailers().get(0);
+                        //updateShareActionProvider(trailer);
+                    }
                 }
             }
         }).executeOnExecutor(AsyncTask.THREAD_POOL_EXECUTOR, (long)mMovie.getId());

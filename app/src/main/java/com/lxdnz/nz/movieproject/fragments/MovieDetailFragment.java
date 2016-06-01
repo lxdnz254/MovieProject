@@ -6,16 +6,20 @@ import android.os.Bundle;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.view.ViewPager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.CheckBox;
 import android.widget.ImageView;
 import android.widget.RatingBar;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.lxdnz.nz.movieproject.R;
 import com.lxdnz.nz.movieproject.adapters.ViewTabAdapter;
 import com.lxdnz.nz.movieproject.objects.Movie;
+import com.lxdnz.nz.movieproject.utils.Utilities;
 import com.squareup.picasso.Picasso;
 
 /**
@@ -24,6 +28,9 @@ import com.squareup.picasso.Picasso;
 public class MovieDetailFragment extends Fragment {
 
     private Movie mMovie;
+    private Context mContext;
+
+    private static final String LOG_TAG = MovieDetailFragment.class.getSimpleName();
 
     public MovieDetailFragment() {
         /*
@@ -36,6 +43,7 @@ public class MovieDetailFragment extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
 
         View rootView = inflater.inflate(R.layout.fragment_movie_detail, container, false);
+        mContext = getContext();
 
         // call the Intent
         Intent intent = getActivity().getIntent();
@@ -48,38 +56,55 @@ public class MovieDetailFragment extends Fragment {
             Picasso.with(getContext()).load(mMovie.getPoster_path()).into((ImageView)
                     rootView.findViewById(R.id.image_view_detail));
             ((RatingBar) rootView.findViewById(R.id.rating_bar)).setRating((float) (mMovie.getVote_average() * 0.5));
+
+            final CheckBox checkBox = (CheckBox) rootView.findViewById(R.id.favorite_checkBox);
+            checkBox.setChecked(new Utilities(mContext).isFavorite(Integer.toString(mMovie.getId())));
+
+            checkBox.setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View v) {
+                    if (checkBox.isChecked()){
+                        long favId = new Utilities(getContext()).markAsFavorite(mMovie);
+                        Log.v(LOG_TAG, "favorite set:"+favId);
+                    }
+                    else {
+                        Toast.makeText(mContext, "Removing from favorites", Toast.LENGTH_LONG).show();
+                    }
+                }
+            });
+
+            TabLayout tab_layout = (TabLayout) rootView.findViewById(R.id.tab_layout);
+            tab_layout.addTab(tab_layout.newTab().setText("Trailers"));
+            tab_layout.addTab(tab_layout.newTab().setText("Reviews"));
+
+            final ViewPager view_pager = (ViewPager) rootView.findViewById(R.id.pager);
+
+            final ViewTabAdapter adapter = new ViewTabAdapter
+                    (getChildFragmentManager(), tab_layout.getTabCount(), mMovie);
+
+            view_pager.setAdapter(adapter);
+
+            view_pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tab_layout));
+
+            tab_layout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+
+                @Override
+                public void onTabSelected(TabLayout.Tab tab) {
+                    view_pager.setCurrentItem(tab.getPosition());
+                }
+
+                @Override
+                public void onTabUnselected(TabLayout.Tab tab) {
+
+                }
+
+                @Override
+                public void onTabReselected(TabLayout.Tab tab) {
+
+                }
+            });
+
         }
-
-        TabLayout tab_layout = (TabLayout) rootView.findViewById(R.id.tab_layout);
-        tab_layout.addTab(tab_layout.newTab().setText("Trailers"));
-        tab_layout.addTab(tab_layout.newTab().setText("Reviews"));
-
-        final ViewPager view_pager = (ViewPager) rootView.findViewById(R.id.pager);
-
-        final ViewTabAdapter adapter = new ViewTabAdapter
-                (getChildFragmentManager(), tab_layout.getTabCount(), mMovie);
-
-        view_pager.setAdapter(adapter);
-
-        view_pager.addOnPageChangeListener(new TabLayout.TabLayoutOnPageChangeListener(tab_layout));
-
-        tab_layout.setOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
-
-            @Override
-            public void onTabSelected(TabLayout.Tab tab) {
-                view_pager.setCurrentItem(tab.getPosition());
-            }
-
-            @Override
-            public void onTabUnselected(TabLayout.Tab tab) {
-
-            }
-
-            @Override
-            public void onTabReselected(TabLayout.Tab tab) {
-
-            }
-        });
 
         return rootView;
     }
