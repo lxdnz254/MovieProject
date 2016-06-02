@@ -36,8 +36,10 @@ public class MovieDetailActivity extends AppCompatActivity {
 
         if (filter.contentEquals(getString(R.string.preference_sorting_default))){
             sortBy = getString(R.string.popular);
-        }else{
+        }else if (filter.contentEquals(getString(R.string.get_top_rated))){
             sortBy = getString(R.string.top_rated);
+        }else{
+            sortBy = getString(R.string.favorites);
         }
 
         //implement actionBar

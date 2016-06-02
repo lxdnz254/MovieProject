@@ -1,12 +1,14 @@
 package com.lxdnz.nz.movieproject.async;
 
 import android.content.Context;
+import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
 
 import com.lxdnz.nz.movieproject.BuildConfig;
 import com.lxdnz.nz.movieproject.adapters.ImageAdapter;
+import com.lxdnz.nz.movieproject.data.MovieContract;
 import com.lxdnz.nz.movieproject.objects.Movie;
 import com.lxdnz.nz.movieproject.fragments.MovieGridFragment;
 import com.lxdnz.nz.movieproject.R;
@@ -29,7 +31,9 @@ import java.util.Arrays;
 public class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
 
     private MovieGridFragment movieGridFragment;
-    public Context mContext;
+    private Context mContext;
+    Movie[] arrayOfFavoriteMovies;
+
 
     private final String LOG_TAG = FetchMovieData.class.getSimpleName();
 
@@ -46,6 +50,7 @@ public class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
         this.movieGridFragment = movieGridFragment;
         this.mContext = context;
 
+
     }
 
     @Override
@@ -56,90 +61,97 @@ public class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
         if (param.length == 0) {
             return null;
         }
+        if (param[0].contentEquals("favorites")){
 
-        // These three need to be declared outside the try/catch
-        // so that they can be closed in the finally block.
-        HttpURLConnection urlConnection = null;
-        BufferedReader reader = null;
-        String resultFromFetch;
+           return getFavoriteData();
 
-        try
+        }else {
 
-        {
+            // These three need to be declared outside the try/catch
+            // so that they can be closed in the finally block.
+            HttpURLConnection urlConnection = null;
+            BufferedReader reader = null;
+            String resultFromFetch;
 
-            // Construct the URL for the themoviedb.or query
-            // Possible parameters are avaiable at tmdb's API page, at
-            // http://www.themoviedb.org/documentation/API
+            try
 
-            Uri uri = new Uri.Builder().scheme(SCHEME)
-                    .authority(AUTHORITY)
-                    .appendPath(VERSION)
-                    .appendPath(MOVIE)
-                    .appendPath(param[0])
-                    .appendQueryParameter(API_KEY, BuildConfig.TMDB_API_KEY)
-                    .build();
+            {
 
-            Log.v(LOG_TAG, "uri = " + uri.toString());
+                // Construct the URL for the themoviedb.or query
+                // Possible parameters are avaiable at tmdb's API page, at
+                // http://www.themoviedb.org/documentation/API
 
-            URL url = new URL(uri.toString());
+                Uri uri = new Uri.Builder().scheme(SCHEME)
+                        .authority(AUTHORITY)
+                        .appendPath(VERSION)
+                        .appendPath(MOVIE)
+                        .appendPath(param[0])
+                        .appendQueryParameter(API_KEY, BuildConfig.TMDB_API_KEY)
+                        .build();
 
-            // Create the request to OpenWeatherMap, and open the connection
-            urlConnection = (HttpURLConnection) url.openConnection();
-            urlConnection.setRequestMethod("GET");
-            urlConnection.connect();
+                Log.v(LOG_TAG, "uri = " + uri.toString());
 
-            // Read the input stream into a String
-            InputStream inputStream = urlConnection.getInputStream();
-            StringBuffer buffer = new StringBuffer();
-            if (inputStream == null) {
-                // Nothing to do.
-                return null;
-            }
-            reader = new BufferedReader(new InputStreamReader(inputStream));
+                URL url = new URL(uri.toString());
 
-            String line;
-            while ((line = reader.readLine()) != null) {
-                // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
-                // But it does make debugging a *lot* easier if you print out the completed
-                // buffer for debugging.
-                buffer.append(line + "\n");
-            }
+                // Create the request to OpenWeatherMap, and open the connection
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("GET");
+                urlConnection.connect();
 
-            if (buffer.length() == 0) {
-                // Stream was empty.  No point in parsing.
-                return null;
-            }
-            resultFromFetch = buffer.toString();
-            try {
-                return parseResponse(resultFromFetch);
-            } catch (JSONException e) {
-                Log.e(LOG_TAG, e.getMessage(), e);
-                e.printStackTrace();
-            }
+                // Read the input stream into a String
+                InputStream inputStream = urlConnection.getInputStream();
+                StringBuffer buffer = new StringBuffer();
+                if (inputStream == null) {
+                    // Nothing to do.
+                    return null;
+                }
+                reader = new BufferedReader(new InputStreamReader(inputStream));
 
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    // Since it's JSON, adding a newline isn't necessary (it won't affect parsing)
+                    // But it does make debugging a *lot* easier if you print out the completed
+                    // buffer for debugging.
+                    buffer.append(line + "\n");
+                }
 
-        } catch (IOException e) {
-            Log.e(LOG_TAG, "Error ", e);
-            // If the code didn't successfully get the movie data, there's no point in attempting
-            // to parse it.
-            return null;
-        } finally
-
-        {
-            if (urlConnection != null) {
-                urlConnection.disconnect();
-            }
-            if (reader != null) {
+                if (buffer.length() == 0) {
+                    // Stream was empty.  No point in parsing.
+                    return null;
+                }
+                resultFromFetch = buffer.toString();
                 try {
-                    reader.close();
-                } catch (final IOException e) {
-                    Log.e(LOG_TAG, "Error closing stream", e);
+                    return parseResponse(resultFromFetch);
+                } catch (JSONException e) {
+                    Log.e(LOG_TAG, e.getMessage(), e);
+                    e.printStackTrace();
+                }
+
+
+            } catch (IOException e) {
+                Log.e(LOG_TAG, "Error ", e);
+                // If the code didn't successfully get the movie data, there's no point in attempting
+                // to parse it.
+                return null;
+            } finally
+
+            {
+                if (urlConnection != null) {
+                    urlConnection.disconnect();
+                }
+                if (reader != null) {
+                    try {
+                        reader.close();
+                    } catch (final IOException e) {
+                        Log.e(LOG_TAG, "Error closing stream", e);
+                    }
                 }
             }
+
+
+            return null;
         }
 
-
-        return null;
     }
 
     private Movie[] parseResponse(String resultFromFetch) throws JSONException {
@@ -212,4 +224,37 @@ public class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
             movieGridFragment.gridView.setAdapter(movieGridFragment.imageAdapter);
         }
     }
+
+    private Movie [] getFavoriteData() {
+
+        int i = 0;
+        Context favContext = movieGridFragment.getContext();
+
+        Cursor c = favContext.getContentResolver().query(
+                MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
+
+        if (c != null){
+            arrayOfFavoriteMovies = new Movie[c.getCount()];
+            c.moveToFirst();
+            do {
+                int id = c.getInt(0);
+                String title = c.getString(1);
+                String original_title = c.getString(2);
+                String overview = c.getString(3);
+                String release_date = c.getString(4);
+                String poster_path = c.getString(5);
+                String backdrop_path = c.getString(6);
+                double vote_average = c.getDouble(7);
+                int vote_count = c.getInt(8);
+                arrayOfFavoriteMovies[i] = new Movie(title, original_title, release_date,
+                        overview, poster_path, backdrop_path, id, vote_count, vote_average);
+                i++;
+
+            }while (c.moveToNext());
+        }
+        c.close();
+
+        return arrayOfFavoriteMovies;
+    }
+
 }
