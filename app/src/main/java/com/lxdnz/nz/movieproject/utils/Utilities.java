@@ -7,6 +7,7 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.lxdnz.nz.movieproject.async.FetchReviewData;
 import com.lxdnz.nz.movieproject.async.FetchTrailerData;
@@ -187,5 +188,41 @@ public class Utilities {
                     bulkReviews
             );
         }
+    }
+
+    public void removeFavorite(Movie movie){
+
+        int movieDeleted;
+        int trailersDeleted;
+        int reviewsDeleted;
+        String movieId = Integer.toString(movie.getId());
+
+        movieDeleted = mContext.getContentResolver().delete(
+                MovieContract.MovieEntry.CONTENT_URI,
+                MovieContract.MovieEntry.MOVIE_ID + " = ?",
+                new String[]{movieId});
+
+        Log.v(LOG_TAG, "movies deleted = "+movieDeleted);
+
+        trailersDeleted = mContext.getContentResolver().delete(
+                MovieContract.TrailerEntry.TRAILER_URI,
+                MovieContract.TrailerEntry.TRAILER_MOVIE_ID + " = ?",
+                new String[]{movieId});
+
+        Log.v(LOG_TAG, "trailers deleted = "+trailersDeleted);
+
+        reviewsDeleted = mContext.getContentResolver().delete(
+                MovieContract.ReviewEntry.REVIEW_URI,
+                MovieContract.ReviewEntry.REVIEW_MOVIE_ID + " = ?",
+                new String[]{movieId});
+
+        Log.v(LOG_TAG, "reviews deleted = "+reviewsDeleted);
+
+        if (movieDeleted != 1){
+            Toast.makeText(mContext, "there was a problem removing movie from favorites", Toast.LENGTH_LONG).show();
+        }else{
+            Toast.makeText(mContext, movie.getTitle()+" was removed from favorites", Toast.LENGTH_SHORT).show();
+        }
+
     }
 }

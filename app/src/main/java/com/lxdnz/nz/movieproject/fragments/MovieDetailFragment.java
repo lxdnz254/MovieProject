@@ -64,11 +64,14 @@ public class MovieDetailFragment extends Fragment {
                 @Override
                 public void onClick(View v) {
                     if (checkBox.isChecked()){
-                        long favId = new Utilities(getContext()).markAsFavorite(mMovie);
+                        long favId = new Utilities(mContext).markAsFavorite(mMovie);
                         Log.v(LOG_TAG, "favorite set:"+favId);
+                        Toast.makeText(mContext, "Adding " + mMovie.getTitle()
+                                + " to favorite database", Toast.LENGTH_SHORT).show();
                     }
                     else {
-                        Toast.makeText(mContext, "Removing from favorites", Toast.LENGTH_LONG).show();
+                        Toast.makeText(mContext, "Removing from favorites", Toast.LENGTH_SHORT).show();
+                        new Utilities(mContext).removeFavorite(mMovie);
                     }
                 }
             });
