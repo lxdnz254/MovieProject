@@ -20,16 +20,23 @@ public class ImageAdapter extends ArrayAdapter<Movie> {
 
     private Context mContext;
     private List<Movie> movies;
+    public Callbacks mCallbacks;
 
-    public ImageAdapter(Context context, List<Movie> movies){
+    public ImageAdapter(Context context, List<Movie> movies, Callbacks callbacks){
         super(context, 0, movies);
 
         this.mContext = context;
         this.movies = movies;
+        this.mCallbacks = callbacks;
     }
 
     public Movie getMovie(int position) {
         return movies.get(position);
+    }
+
+
+    public interface Callbacks {
+        void open(Movie movie, int position);
     }
 
 

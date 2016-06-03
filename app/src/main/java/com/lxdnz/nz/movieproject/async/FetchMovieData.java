@@ -33,6 +33,7 @@ public class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
     private MovieGridFragment movieGridFragment;
     private Context mContext;
     Movie[] arrayOfFavoriteMovies;
+    private ImageAdapter.Callbacks mCallbacks;
 
 
     private final String LOG_TAG = FetchMovieData.class.getSimpleName();
@@ -220,7 +221,8 @@ public class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
         super.onPostExecute(result);
 
         if (result != null) {
-            movieGridFragment.imageAdapter = new ImageAdapter(movieGridFragment.getActivity(), Arrays.asList(result));
+            movieGridFragment.imageAdapter = new ImageAdapter(movieGridFragment.getActivity()
+                    , Arrays.asList(result), mCallbacks);
             movieGridFragment.gridView.setAdapter(movieGridFragment.imageAdapter);
         }
     }
@@ -233,7 +235,7 @@ public class FetchMovieData extends AsyncTask<String, Void, Movie[]> {
         Cursor c = favContext.getContentResolver().query(
                 MovieContract.MovieEntry.CONTENT_URI, null, null, null, null);
 
-        if (c != null){
+        if (c != null && c.getCount() > 0){
             arrayOfFavoriteMovies = new Movie[c.getCount()];
             c.moveToFirst();
             do {

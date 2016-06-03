@@ -47,8 +47,13 @@ public class MovieDetailFragment extends Fragment {
 
         // call the Intent
         Intent intent = getActivity().getIntent();
+        Bundle arguments = getArguments();
         if (intent != null && intent.hasExtra("clickedMovie")) {
             mMovie = intent.getParcelableExtra("clickedMovie");
+        }else if (arguments != null){
+            mMovie = arguments.getParcelable("clickedMovie");
+        }
+        if (mMovie != null){
             ((TextView) rootView.findViewById(R.id.original_title)).setText(mMovie.getOriginal_title());
             ((TextView) rootView.findViewById(R.id.title)).setText(mMovie.getTitle());
             ((TextView) rootView.findViewById(R.id.release_date)).setText(mMovie.getRelease_date());

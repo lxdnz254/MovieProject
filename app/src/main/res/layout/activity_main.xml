@@ -1,4 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fragment_movie_grid"
+        android:name="com.lxdnz.nz.movieproject.fragments.MovieGridFragment"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:layout_marginLeft="@dimen/activity_horizontal_margin"
+        android:layout_marginRight="@dimen/activity_horizontal_margin"
+        tools:context="com.lxdnz.nz.movieproject.fragments.MovieGridFragment"
+        tools:layout="@android:layout/list_content"
+        />
+
+
+  <!--
 <FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
     android:id="@+id/container"
@@ -12,4 +27,6 @@
 
 
 
+
 </FrameLayout>
+  -->

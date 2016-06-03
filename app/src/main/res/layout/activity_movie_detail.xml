@@ -9,6 +9,7 @@
     android:paddingRight="@dimen/activity_horizontal_margin"
     android:paddingTop="@dimen/activity_vertical_margin"
     android:nestedScrollingEnabled="true"
-    tools:context="com.lxdnz.nz.movieproject.MovieDetailActivity">
+    tools:context="com.lxdnz.nz.movieproject.MovieDetailActivity"
+    tools:ignore="MergeRootFrame">
 
 </RelativeLayout>

@@ -21,7 +21,7 @@ public class ReviewAdapter extends RecyclerView.Adapter<ReviewAdapter.ViewHolder
     private final static String LOG_TAG = ReviewAdapter.class.getSimpleName();
 
     private final ArrayList<Review> mReviews;
-    private final Callbacks mCallbacks;
+    public final Callbacks mCallbacks;
 
     public ReviewAdapter(ArrayList<Review> reviews, Callbacks callbacks) {
         mReviews = reviews;
