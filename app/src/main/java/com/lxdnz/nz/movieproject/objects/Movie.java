@@ -1,4 +1,4 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.objects;
 
 import android.os.Parcel;
 import android.os.Parcelable;

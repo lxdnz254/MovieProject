@@ -1,33 +1,53 @@
 package com.lxdnz.nz.movieproject;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
+import com.lxdnz.nz.movieproject.adapters.ImageAdapter;
+import com.lxdnz.nz.movieproject.fragments.MovieDetailFragment;
+import com.lxdnz.nz.movieproject.fragments.MovieGridFragment;
+import com.lxdnz.nz.movieproject.objects.Movie;
+import com.lxdnz.nz.movieproject.preferenceactivity.SettingsActivity;
+
 public class MainActivity extends AppCompatActivity {
 
-    Context mContext;
+    private static final String DETAILFRAGMENT_TAG = "DFTAG";
+    public boolean mTwoPane;
+    private static final String LOG_TAG = MainActivity.class.getSimpleName();
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_main);
-        setupActionBar();
-
-
-        if(savedInstanceState == null) {
-            getSupportFragmentManager().beginTransaction()
-                    .add(R.id.container, new MovieGridFragment())
-                    .commit();
+        if (findViewById(R.id.movie_container) != null) {
+            // The detail container view will be present only in the large-screen layouts
+            // (res/layout-sw600dp-land & res/layout-sw720dp). If this view is present,
+            // then the activity should be in two-pane mode.
+            mTwoPane = true;
+            // In two-pane mode, show the detail view in this activity by
+            // adding or replacing the detail fragment using a
+            // fragment transaction.
+            if (savedInstanceState == null) {
+                getSupportFragmentManager().beginTransaction()
+                        .replace(R.id.movie_container, new MovieDetailFragment(), DETAILFRAGMENT_TAG)
+                        .commit();
+            }
+        }else {
+            mTwoPane = false;
         }
+        setupActionBar();
+        MovieGridFragment movieGridFragment = ((MovieGridFragment) getSupportFragmentManager()
+                .findFragmentById(R.id.fragment_movie_grid));
+
+
     }
 
     private void setupActionBar() {
@@ -40,8 +60,10 @@ public class MainActivity extends AppCompatActivity {
 
         if (filter.contentEquals(getString(R.string.preference_sorting_default))){
             sortBy = getString(R.string.popular);
-        }else{
+        }else if (filter.contentEquals(getString(R.string.get_top_rated))){
             sortBy = getString(R.string.top_rated);
+        }else{
+            sortBy = getString(R.string.favorites);
         }
 
         //implement actionBar
@@ -55,7 +77,6 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
 
 
     @Override

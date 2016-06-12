@@ -28,7 +28,7 @@
                 android:value="com.lxdnz.nz.movieproject.MainActivity" />
         </activity>
         <activity
-            android:name=".SettingsActivity"
+            android:name=".preferenceactivity.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity">
             <meta-data
@@ -36,6 +36,9 @@
                 android:value="com.lxdnz.nz.movieproject.MainActivity"
                 />
         </activity>
+        <provider
+            android:authorities="com.lxdnz.nz.movieproject"
+            android:name=".data.MovieProvider"/>
     </application>
 
 </manifest>

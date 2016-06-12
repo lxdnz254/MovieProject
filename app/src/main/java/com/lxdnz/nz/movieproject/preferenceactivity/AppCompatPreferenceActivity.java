@@ -1,4 +1,4 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.preferenceactivity;
 
 import android.content.res.Configuration;
 import android.os.Bundle;

@@ -9,6 +9,8 @@
     <string name="movies">http://api.themoviedb.org/3/movie/</string>
     <string name="top_rated">Top Rated</string>
     <string name="popular">Most Popular</string>
+    <string name="favorites">Favorites</string>
+    <string name="get_top_rated">top_rated</string>
 
     <!-- PREFERENCES -->
     <string name="preference_sorting_key" translatable="false">sorting_key</string>
@@ -17,10 +19,12 @@
     <string-array name="preference_sorting_entries">
         <item>Popularity</item>
         <item>Rating</item>
+        <item>Favorites</item>
     </string-array>
     <string-array name="preference_sorting_entry_values">
         <item>popular</item>
         <item>top_rated</item>
+        <item>favorites</item>
     </string-array>
 
     <string name="preference_preview_width" translatable="false">preview_image_width</string>

@@ -1,4 +1,4 @@
-package com.lxdnz.nz.movieproject;
+package com.lxdnz.nz.movieproject.adapters;
 
 import android.content.Context;
 import android.view.LayoutInflater;
@@ -7,6 +7,8 @@ import android.view.ViewGroup;
 import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 
+import com.lxdnz.nz.movieproject.objects.Movie;
+import com.lxdnz.nz.movieproject.R;
 import com.squareup.picasso.Picasso;
 
 import java.util.List;
@@ -18,20 +20,23 @@ public class ImageAdapter extends ArrayAdapter<Movie> {
 
     private Context mContext;
     private List<Movie> movies;
-    private String imageUrl;
-    int layoutResourceId;
-    Movie data[] = null;
+    public Callbacks mCallbacks;
 
-
-    public ImageAdapter(Context context, List<Movie> movies){
+    public ImageAdapter(Context context, List<Movie> movies, Callbacks callbacks){
         super(context, 0, movies);
 
         this.mContext = context;
         this.movies = movies;
+        this.mCallbacks = callbacks;
     }
 
     public Movie getMovie(int position) {
         return movies.get(position);
+    }
+
+
+    public interface Callbacks {
+        void open(Movie movie, int position);
     }
 
 
@@ -50,12 +55,9 @@ public class ImageAdapter extends ArrayAdapter<Movie> {
         }
 
         Picasso.with(mContext)
-                .load(movieItem.getBackdrop_path())
+                .load(movieItem.getPoster_path())
                 .into((ImageView) convertView.findViewById(R.id.image_view_thumbnail));
-        /*
-        TextView tv = (TextView)convertView.findViewById(R.id.image_view_text);
-        tv.setText(movieItem.getTitle());
-        */
+
         return convertView;
     }
 
